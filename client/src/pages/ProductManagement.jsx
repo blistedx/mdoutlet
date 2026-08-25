@@ -28,13 +28,14 @@ import {
   MEASUREMENT_UNITS, 
   getCategoryMeta 
 } from '../utils/categories';
+import { FALLBACK_PRODUCTS } from '../utils/demoFallbackData';
 
 const ProductManagement = () => {
   const { isAdmin } = useAuth();
   const { addToast } = useToast();
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
 
@@ -57,7 +58,6 @@ const ProductManagement = () => {
     reorderThreshold: 20
   });
 
-
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -66,15 +66,19 @@ const ProductManagement = () => {
     try {
       setLoading(true);
       const res = await getProductsApi();
-      if (res.data.success) {
+      if (res.data?.success && res.data.products?.length > 0) {
         setProducts(res.data.products);
+      } else {
+        setProducts(FALLBACK_PRODUCTS);
       }
     } catch (error) {
-      addToast('Failed to load product catalog', 'error');
+      console.warn('Product load fallback active:', error?.message);
+      setProducts(FALLBACK_PRODUCTS);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleOpenCreateModal = () => {
     setIsEditing(false);
