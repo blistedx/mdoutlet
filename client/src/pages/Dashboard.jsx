@@ -38,15 +38,16 @@ import {
   Cell, 
   Legend 
 } from 'recharts';
+import { FALLBACK_DASHBOARD_KPI } from '../utils/demoFallbackData';
 
 const COLORS = ['#1e3a1e', '#3d6b3d', '#6a9c6a', '#9bc09b', '#d97706', '#be123c', '#4c7a4c'];
 
 const Dashboard = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(FALLBACK_DASHBOARD_KPI.kpis);
+  const [analytics, setAnalytics] = useState(FALLBACK_DASHBOARD_KPI);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -55,19 +56,25 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, analyticsRes] = await Promise.all([
+      const [statsRes, analyticsRes] = await Promise.allSettled([
         getDashboardStatsApi(),
         getAnalyticsReportApi({ range: 'week' })
       ]);
 
-      if (statsRes.data.success) {
-        setStats(statsRes.data.stats);
+      if (statsRes.status === 'fulfilled' && statsRes.value?.data?.success) {
+        setStats(statsRes.value.data.stats);
+      } else {
+        setStats(FALLBACK_DASHBOARD_KPI.kpis);
       }
-      if (analyticsRes.data.success) {
-        setAnalytics(analyticsRes.data);
+      if (analyticsRes.status === 'fulfilled' && analyticsRes.value?.data?.success) {
+        setAnalytics(analyticsRes.value.data);
+      } else {
+        setAnalytics(FALLBACK_DASHBOARD_KPI);
       }
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      console.warn('Dashboard fallback active:', error?.message);
+      setStats(FALLBACK_DASHBOARD_KPI.kpis);
+      setAnalytics(FALLBACK_DASHBOARD_KPI);
     } finally {
       setLoading(false);
     }

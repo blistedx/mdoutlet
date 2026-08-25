@@ -27,6 +27,8 @@ import {
   Banknote,
   QrCode
 } from 'lucide-react';
+import { FALLBACK_SALES, FALLBACK_PRODUCTS } from '../utils/demoFallbackData';
+
 
 const Sales = () => {
   const [searchParams] = useSearchParams();
@@ -80,11 +82,13 @@ const Sales = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProductsApi({ activeOnly: true });
-      if (res.data.success) {
+      if (res.data?.success && res.data.products?.length > 0) {
         setProducts(res.data.products);
+      } else {
+        setProducts(FALLBACK_PRODUCTS);
       }
     } catch (e) {
-      console.warn('Failed to load products:', e);
+      setProducts(FALLBACK_PRODUCTS);
     }
   };
 
@@ -96,16 +100,19 @@ const Sales = () => {
       if (endDate) params.endDate = endDate;
 
       const res = await getSalesApi(params);
-      if (res.data?.success) {
-        setSales(res.data.sales || []);
+      if (res.data?.success && res.data.sales?.length > 0) {
+        setSales(res.data.sales);
+      } else {
+        setSales(FALLBACK_SALES);
       }
     } catch (error) {
-      console.warn('Sales load notice:', error?.message);
-      setSales([]);
+      console.warn('Sales load fallback active:', error?.message);
+      setSales(FALLBACK_SALES);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleSelectProduct = (product) => {
     if (!product) return;

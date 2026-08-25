@@ -17,6 +17,11 @@ import {
   Plus, 
   Camera, 
   Search, 
+import { 
+  ShoppingBag, 
+  Plus, 
+  Camera, 
+  Search, 
   Trash2, 
   Calendar, 
   Truck, 
@@ -27,8 +32,10 @@ import {
   Package,
   Layers
 } from 'lucide-react';
+import { FALLBACK_PURCHASES, FALLBACK_PRODUCTS } from '../utils/demoFallbackData';
 
 const Purchases = () => {
+
   const [searchParams] = useSearchParams();
   const { isAdmin } = useAuth();
   const { addToast } = useToast();
@@ -82,11 +89,13 @@ const Purchases = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProductsApi({ activeOnly: true });
-      if (res.data.success) {
+      if (res.data?.success && res.data.products?.length > 0) {
         setProducts(res.data.products);
+      } else {
+        setProducts(FALLBACK_PRODUCTS);
       }
     } catch (e) {
-      console.warn('Failed to load products:', e);
+      setProducts(FALLBACK_PRODUCTS);
     }
   };
 
@@ -98,16 +107,19 @@ const Purchases = () => {
       if (endDate) params.endDate = endDate;
 
       const res = await getPurchasesApi(params);
-      if (res.data?.success) {
-        setPurchases(res.data.purchases || []);
+      if (res.data?.success && res.data.purchases?.length > 0) {
+        setPurchases(res.data.purchases);
+      } else {
+        setPurchases(FALLBACK_PURCHASES);
       }
     } catch (error) {
-      console.warn('Purchases load notice:', error?.message);
-      setPurchases([]);
+      console.warn('Purchases load fallback active:', error?.message);
+      setPurchases(FALLBACK_PURCHASES);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleSelectProduct = (product) => {
     if (!product) return;
