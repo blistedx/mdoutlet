@@ -98,11 +98,12 @@ const Purchases = () => {
       if (endDate) params.endDate = endDate;
 
       const res = await getPurchasesApi(params);
-      if (res.data.success) {
-        setPurchases(res.data.purchases);
+      if (res.data?.success) {
+        setPurchases(res.data.purchases || []);
       }
     } catch (error) {
-      addToast('Failed to load purchase history', 'error');
+      console.warn('Purchases load notice:', error?.message);
+      setPurchases([]);
     } finally {
       setLoading(false);
     }

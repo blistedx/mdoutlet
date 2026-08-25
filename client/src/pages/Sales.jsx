@@ -96,11 +96,12 @@ const Sales = () => {
       if (endDate) params.endDate = endDate;
 
       const res = await getSalesApi(params);
-      if (res.data.success) {
-        setSales(res.data.sales);
+      if (res.data?.success) {
+        setSales(res.data.sales || []);
       }
     } catch (error) {
-      addToast('Failed to load sales transactions', 'error');
+      console.warn('Sales load notice:', error?.message);
+      setSales([]);
     } finally {
       setLoading(false);
     }

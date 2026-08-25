@@ -50,18 +50,19 @@ const Production = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [prodRes, productsRes] = await Promise.all([
+      const [prodRes, productsRes] = await Promise.allSettled([
         getProductionsApi(),
         getProductsApi({ activeOnly: true })
       ]);
 
-      if (prodRes.data.success) {
-        setProductions(prodRes.data.productions);
+      if (prodRes.status === 'fulfilled' && prodRes.value?.data?.success) {
+        setProductions(prodRes.value.data.productions || []);
       }
-      if (productsRes.data.success) {
-        setProducts(productsRes.data.products);
+      if (productsRes.status === 'fulfilled' && productsRes.value?.data?.success) {
+        const prods = productsRes.value.data.products || [];
+        setProducts(prods);
         // Default raw milk product
-        const raw = productsRes.data.products.find(
+        const raw = prods.find(
           (p) => p.category === 'raw-milk' || p.name.toLowerCase().includes('raw')
         );
         if (raw) {
@@ -69,7 +70,7 @@ const Production = () => {
         }
       }
     } catch (error) {
-      addToast('Failed to load production batches', 'error');
+      console.warn('Production load notice:', error?.message);
     } finally {
       setLoading(false);
     }

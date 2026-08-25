@@ -41,12 +41,13 @@ const AuditLogViewer = () => {
       if (searchQuery) params.search = searchQuery;
 
       const res = await getAuditLogsApi(params);
-      if (res.data.success) {
-        setLogs(res.data.logs);
-        setTotal(res.data.total);
+      if (res.data?.success) {
+        setLogs(res.data.logs || []);
+        setTotal(res.data.total || 0);
       }
     } catch (error) {
-      addToast('Failed to load system audit trail', 'error');
+      console.warn('Audit logs load notice:', error?.message);
+      setLogs([]);
     } finally {
       setLoading(false);
     }
