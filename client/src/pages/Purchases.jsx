@@ -190,11 +190,15 @@ const Purchases = () => {
   const selectedProductObj = products.find((p) => p._id === formData.productId);
   const totalCost = Number(formData.quantity || 0) * Number(formData.costPrice || 0);
 
-  const filteredPurchases = purchases.filter((p) =>
-    p.supplierName.toLowerCase().includes(supplierSearch.toLowerCase()) ||
-    p.productId?.name.toLowerCase().includes(supplierSearch.toLowerCase()) ||
-    (p.invoiceNumber && p.invoiceNumber.toLowerCase().includes(supplierSearch.toLowerCase()))
-  );
+  const searchLower = (supplierSearch || '').toLowerCase();
+  const filteredPurchases = purchases.filter((p) => {
+    if (!p) return false;
+    const sup = (p.supplierName || '').toLowerCase();
+    const prodName = (p.productId?.name || p.product?.name || '').toLowerCase();
+    const inv = (p.invoiceNumber || '').toLowerCase();
+    return sup.includes(searchLower) || prodName.includes(searchLower) || inv.includes(searchLower);
+  });
+
 
   return (
     <div className="space-y-6">

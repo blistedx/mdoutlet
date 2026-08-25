@@ -193,11 +193,15 @@ const Sales = () => {
   const estCost = Number(formData.quantity || 0) * Number(selectedProductObj?.costPrice || 0);
   const estProfit = Math.max(0, totalAmount - estCost);
 
-  const filteredSales = sales.filter((s) =>
-    s.customerName.toLowerCase().includes(customerSearch.toLowerCase()) ||
-    s.productId?.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
-    s.paymentMode.toLowerCase().includes(customerSearch.toLowerCase())
-  );
+  const searchLower = (customerSearch || '').toLowerCase();
+  const filteredSales = sales.filter((s) => {
+    if (!s) return false;
+    const cust = (s.customerName || '').toLowerCase();
+    const prodName = (s.productId?.name || s.product?.name || '').toLowerCase();
+    const mode = (s.paymentMode || '').toLowerCase();
+    return cust.includes(searchLower) || prodName.includes(searchLower) || mode.includes(searchLower);
+  });
+
 
   return (
     <div className="space-y-6">
