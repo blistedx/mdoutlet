@@ -17,11 +17,6 @@ import {
   Plus, 
   Camera, 
   Search, 
-import { 
-  ShoppingBag, 
-  Plus, 
-  Camera, 
-  Search, 
   Trash2, 
   Calendar, 
   Truck, 
