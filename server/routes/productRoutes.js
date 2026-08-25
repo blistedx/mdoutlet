@@ -1,0 +1,25 @@
+import express from 'express';
+import {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  generateQrCodeImage
+} from '../controllers/productController.js';
+import { protect, requireAdmin } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
+
+router.use(protect);
+
+router.get('/', getProducts);
+router.get('/:id', getProductById);
+router.get('/:id/qr', generateQrCodeImage);
+
+// Admin-only mutations
+router.post('/', requireAdmin, createProduct);
+router.put('/:id', requireAdmin, updateProduct);
+router.delete('/:id', requireAdmin, deleteProduct);
+
+export default router;

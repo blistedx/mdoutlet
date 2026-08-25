@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#f4f8f2] text-[#1e3a1e] min-h-screen font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Custom Botanical Dairy Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f8f2;
+}
+::-webkit-scrollbar-thumb {
+  background: #9bc09b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6a9c6a;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(160, 195, 150, 0.3);
+}
+
+.glass-panel-dark {
+  background: rgba(30, 58, 30, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(160, 195, 150, 0.2);
+}
+
+/* Float animation for hero badges */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out 2s infinite;
+}
+
+.animate-float-delayed-4 {
+  animation: float 6s ease-in-out 4s infinite;
+}
+
+/* Animated Scanner Laser */
+@keyframes scan-line {
+  0% {
+    top: 5%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 90%;
+    opacity: 1;
+  }
+  100% {
+    top: 5%;
+    opacity: 0.8;
+  }
+}
+
+.animate-scan-laser {
+  animation: scan-line 2.2s ease-in-out infinite;
+}
+
+/* Dairy Milk Wave Float */
+@keyframes wave-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.4deg);
+  }
+}
+
+.animate-wave-float {
+  animation: wave-float 6s ease-in-out infinite;
+}
+
+/* Serif Highlight Marker */
+.serif-highlight {
+  color: #6a9c6a;
+  font-style: italic;
+  position: relative;
+  display: inline-block;
+}
+
+.serif-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: rgba(106, 156, 106, 0.22);
+  border-radius: 4px;
+  z-index: -1;
+}
+
