@@ -31,13 +31,14 @@ const ensureDbReady = async () => {
     try {
       await connectDB();
       await sequelize.sync();
-      await initializeDefaultUsers();
+      await seedDatabase();
       isDbInitialized = true;
     } catch (e) {
       console.error('[Serverless DB Init]:', e.message);
     }
   }
 };
+
 
 app.use(async (req, res, next) => {
   await ensureDbReady();
