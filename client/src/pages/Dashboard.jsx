@@ -302,7 +302,7 @@ const Dashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis 
                     dataKey="date" 
-                    tickFormatter={(str) => str.slice(5)} 
+                    tickFormatter={(str) => String(str || '').slice(5)} 
                     tick={{ fill: '#94a3b8', fontSize: 10 }} 
                   />
                   <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />

@@ -206,8 +206,9 @@ const Production = () => {
                   </div>
                   <div>
                     <div className="font-extrabold text-sm text-slate-900">
-                      Processing Batch #{batch._id.slice(-6).toUpperCase()}
+                      Processing Batch #{String(batch._id || batch.id || '0000').slice(-6).toUpperCase()}
                     </div>
+
                     <div className="text-[11px] text-slate-400 flex items-center gap-2">
                       <span>Date: {new Date(batch.batchDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       <span>•</span>

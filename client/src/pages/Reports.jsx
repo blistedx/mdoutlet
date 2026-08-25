@@ -298,7 +298,7 @@ const Reports = () => {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="date" tickFormatter={(s) => s.slice(5)} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                  <XAxis dataKey="date" tickFormatter={(s) => String(s || '').slice(5)} tick={{ fill: '#94a3b8', fontSize: 10 }} />
                   <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
                   <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderRadius: '16px', fontSize: '11px', borderColor: '#a0c396' }} />
                   <Legend />
