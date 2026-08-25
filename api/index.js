@@ -183,23 +183,49 @@ app.get('/api/reports/dashboard', (req, res) => {
 app.get('/api/reports/analytics', (req, res) => {
   res.status(200).json({
     success: true,
-    salesTrend: [
+    summary: {
+      totalSalesAmount: 546980,
+      totalSalesQuantity: 2450,
+      totalPurchasesAmount: 433750,
+      totalPurchasesQuantity: 3200,
+      totalCOGS: 412000,
+      grossProfit: 134980,
+      batchWastageLoss: 1450,
+      totalWastageUnits: 15,
+      netProfit: 113230,
+      profitMarginPct: 20.7
+    },
+    timeSeries: [
       { date: '2026-08-19', sales: 68400, purchases: 52000 },
       { date: '2026-08-20', sales: 74200, purchases: 58000 },
       { date: '2026-08-21', sales: 81000, purchases: 61000 },
       { date: '2026-08-22', sales: 69500, purchases: 54000 },
       { date: '2026-08-23', sales: 92400, purchases: 72000 },
       { date: '2026-08-24', sales: 88500, purchases: 67000 },
-      { date: '2026-08-25', sales: 54698, purchases: 43752 }
+      { date: '2026-08-25', sales: 72980, purchases: 49750 }
     ],
     categoryBreakdown: [
-      { name: 'Milk', value: 45 },
-      { name: 'Paneer', value: 20 },
-      { name: 'Ghee & Butter', value: 18 },
-      { name: 'Curd & Chaach', value: 12 },
-      { name: 'Sweets & Ice Cream', value: 5 }
+      { category: 'Milk', amount: 245000 },
+      { category: 'Paneer', amount: 115000 },
+      { category: 'Ghee & Butter', amount: 98000 },
+      { category: 'Curd & Chaach', amount: 62000 },
+      { category: 'Sweets', amount: 26980 }
+    ],
+    topSelling: [
+      { productId: 1, name: 'Mother Dairy Full Cream Milk (1L)', category: 'milk', quantitySold: 980, totalRevenue: 66640 },
+      { productId: 2, name: 'Mother Dairy Toned Milk (500ml)', category: 'milk', quantitySold: 850, totalRevenue: 23800 },
+      { productId: 8, name: 'Mother Dairy Malai Paneer (200g)', category: 'paneer', quantitySold: 420, totalRevenue: 39900 },
+      { productId: 10, name: 'Mother Dairy Pure Cow Ghee (1L Tin)', category: 'ghee', quantitySold: 120, totalRevenue: 78000 },
+      { productId: 5, name: 'Mother Dairy Classic Dahi / Curd (400g)', category: 'curd', quantitySold: 340, totalRevenue: 15300 }
     ]
   });
+});
+
+app.get('/api/reports/export-csv', (req, res) => {
+  const type = req.query.type || 'sales';
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename=mother_dairy_${type}_report.csv`);
+  res.status(200).send('Date,Item,Category,Quantity,Amount\n2026-08-25,Full Cream Milk 1L,milk,100,6800\n2026-08-24,Toned Milk 500ml,milk,150,4200\n2026-08-23,Malai Paneer 200g,paneer,60,5700\n2026-08-22,Pure Cow Ghee 1L,ghee,25,16250');
 });
 
 // Reviews & Feedback

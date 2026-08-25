@@ -4,6 +4,7 @@ import {
   getProductsApi, 
   getExportCsvUrl 
 } from '../services/api';
+import { FALLBACK_ANALYTICS_REPORT, FALLBACK_PRODUCTS } from '../utils/demoFallbackData';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Badge from '../components/common/Badge';
@@ -37,9 +38,9 @@ const Reports = () => {
   const { isAdmin } = useAuth();
   const { addToast } = useToast();
 
-  const [analytics, setAnalytics] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [analytics, setAnalytics] = useState(FALLBACK_ANALYTICS_REPORT);
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
+  const [loading, setLoading] = useState(false);
 
   // Filters
   const [range, setRange] = useState('month'); // today, week, month, year, custom
@@ -58,17 +59,16 @@ const Reports = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProductsApi({ activeOnly: true });
-      if (res.data.success) {
+      if (res.data?.success && res.data?.products?.length > 0) {
         setProducts(res.data.products);
       }
     } catch (e) {
-      console.warn('Failed to load products for report:', e);
+      console.warn('Using fallback products for report');
     }
   };
 
   const fetchAnalytics = async () => {
     try {
-      setLoading(true);
       const params = { range };
       if (range === 'custom') {
         if (startDate) params.startDate = startDate;
@@ -79,11 +79,12 @@ const Reports = () => {
       }
 
       const res = await getAnalyticsReportApi(params);
-      if (res.data.success) {
+      if (res.data?.success && res.data?.summary) {
         setAnalytics(res.data);
       }
     } catch (error) {
-      addToast('Failed to load financial reports', 'error');
+      console.warn('Using fallback financial analytics report');
+      setAnalytics(FALLBACK_ANALYTICS_REPORT);
     } finally {
       setLoading(false);
     }

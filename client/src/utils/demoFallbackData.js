@@ -383,3 +383,43 @@ export const FALLBACK_EXPIRY_SUMMARY = {
   discardedCount: 1
 };
 
+export const FALLBACK_ANALYTICS_REPORT = {
+  success: true,
+  summary: {
+    totalSalesAmount: 546980,
+    totalSalesQuantity: 2450,
+    totalPurchasesAmount: 433750,
+    totalPurchasesQuantity: 3200,
+    totalCOGS: 412000,
+    grossProfit: 134980,
+    batchWastageLoss: 1450,
+    totalWastageUnits: 15,
+    netProfit: 113230,
+    profitMarginPct: 20.7
+  },
+  timeSeries: [
+    { date: '2026-08-19', sales: 68400, purchases: 52000 },
+    { date: '2026-08-20', sales: 74200, purchases: 58000 },
+    { date: '2026-08-21', sales: 81000, purchases: 61000 },
+    { date: '2026-08-22', sales: 69500, purchases: 54000 },
+    { date: '2026-08-23', sales: 92400, purchases: 72000 },
+    { date: '2026-08-24', sales: 88500, purchases: 67000 },
+    { date: '2026-08-25', sales: 72980, purchases: 49750 }
+  ],
+  categoryBreakdown: [
+    { category: 'Milk', amount: 245000 },
+    { category: 'Paneer', amount: 115000 },
+    { category: 'Ghee & Butter', amount: 98000 },
+    { category: 'Curd & Chaach', amount: 62000 },
+    { category: 'Sweets', amount: 26980 }
+  ],
+  topSelling: [
+    { productId: 1, name: 'Mother Dairy Full Cream Milk (1L)', category: 'milk', quantitySold: 980, totalRevenue: 66640 },
+    { productId: 2, name: 'Mother Dairy Toned Milk (500ml)', category: 'milk', quantitySold: 850, totalRevenue: 23800 },
+    { productId: 8, name: 'Mother Dairy Malai Paneer (200g)', category: 'paneer', quantitySold: 420, totalRevenue: 39900 },
+    { productId: 10, name: 'Mother Dairy Pure Cow Ghee (1L Tin)', category: 'ghee', quantitySold: 120, totalRevenue: 78000 },
+    { productId: 5, name: 'Mother Dairy Classic Dahi / Curd (400g)', category: 'curd', quantitySold: 340, totalRevenue: 15300 }
+  ]
+};
+
+
