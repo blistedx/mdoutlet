@@ -304,3 +304,82 @@ export const FALLBACK_DASHBOARD_KPI = {
   recentPurchases: FALLBACK_PURCHASES,
   recentSales: FALLBACK_SALES
 };
+
+export const FALLBACK_EXPIRY_BATCHES = [
+  {
+    _id: 1,
+    id: 1,
+    productId: FALLBACK_PRODUCTS[0],
+    product: FALLBACK_PRODUCTS[0],
+    batchNumber: 'BCH-MIL-00891',
+    manufactureDate: '2026-08-24',
+    expiryDate: '2026-08-26',
+    quantity: 45,
+    status: 'near-expiry',
+    daysLeft: 1,
+    notes: 'Morning pasteurized dispatch'
+  },
+  {
+    _id: 2,
+    id: 2,
+    productId: FALLBACK_PRODUCTS[1],
+    product: FALLBACK_PRODUCTS[1],
+    batchNumber: 'BCH-MIL-00892',
+    manufactureDate: '2026-08-25',
+    expiryDate: '2026-08-27',
+    quantity: 60,
+    status: 'fresh',
+    daysLeft: 2,
+    notes: 'Fresh toned milk batch'
+  },
+  {
+    _id: 3,
+    id: 3,
+    productId: FALLBACK_PRODUCTS[4],
+    product: FALLBACK_PRODUCTS[4],
+    batchNumber: 'BCH-CUR-00893',
+    manufactureDate: '2026-08-22',
+    expiryDate: '2026-08-28',
+    quantity: 35,
+    status: 'fresh',
+    daysLeft: 3,
+    notes: 'Natural Dahi batch'
+  },
+  {
+    _id: 4,
+    id: 4,
+    productId: FALLBACK_PRODUCTS[5],
+    product: FALLBACK_PRODUCTS[5],
+    batchNumber: 'BCH-PAN-00894',
+    manufactureDate: '2026-08-15',
+    expiryDate: '2026-08-30',
+    quantity: 25,
+    status: 'fresh',
+    daysLeft: 5,
+    notes: 'Vacuum packed malai paneer'
+  },
+  {
+    _id: 5,
+    id: 5,
+    productId: FALLBACK_PRODUCTS[9],
+    product: FALLBACK_PRODUCTS[9],
+    batchNumber: 'BCH-BUT-00870',
+    manufactureDate: '2026-08-10',
+    expiryDate: '2026-08-18',
+    quantity: 10,
+    status: 'expired',
+    daysLeft: -7,
+    notes: 'Marked for return/discard'
+  }
+];
+
+export const FALLBACK_EXPIRY_SUMMARY = {
+  totalBatches: 5,
+  freshCount: 3,
+  nearExpiryCount: 1,
+  nearExpiryRiskUnits: 45,
+  expiredCount: 1,
+  expiredWastageUnits: 10,
+  discardedCount: 1
+};
+

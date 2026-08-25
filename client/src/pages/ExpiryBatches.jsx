@@ -7,6 +7,7 @@ import {
   deleteExpiryBatchApi, 
   getProductsApi 
 } from '../services/api';
+import { FALLBACK_EXPIRY_BATCHES, FALLBACK_EXPIRY_SUMMARY, FALLBACK_PRODUCTS } from '../utils/demoFallbackData';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Modal from '../components/common/Modal';
@@ -31,10 +32,10 @@ const ExpiryBatches = () => {
   const { isAdmin } = useAuth();
   const { addToast } = useToast();
 
-  const [batches, setBatches] = useState([]);
-  const [summary, setSummary] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [batches, setBatches] = useState(FALLBACK_EXPIRY_BATCHES);
+  const [summary, setSummary] = useState(FALLBACK_EXPIRY_SUMMARY);
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
+  const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState(searchParams.get('nearExpiryOnly') === 'true' ? 'near-expiry' : 'all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -61,27 +62,28 @@ const ExpiryBatches = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProductsApi({ activeOnly: true });
-      if (res.data.success) {
+      if (res.data?.success && res.data?.products?.length > 0) {
         setProducts(res.data.products);
       }
     } catch (e) {
-      console.warn('Failed to load products:', e);
+      console.warn('Using fallback products');
     }
   };
 
   const fetchBatches = async () => {
     try {
-      setLoading(true);
       const res = await getExpiryBatchesApi({
         status: statusFilter === 'all' ? undefined : statusFilter,
         nearExpiryOnly: searchParams.get('nearExpiryOnly') === 'true' ? 'true' : undefined
       });
-      if (res.data.success) {
+      if (res.data?.success && res.data?.batches) {
         setBatches(res.data.batches);
-        setSummary(res.data.summary);
+        if (res.data.summary) setSummary(res.data.summary);
       }
     } catch (error) {
-      addToast('Failed to load expiry batches', 'error');
+      console.warn('Using fallback expiry batches');
+      setBatches(FALLBACK_EXPIRY_BATCHES);
+      setSummary(FALLBACK_EXPIRY_SUMMARY);
     } finally {
       setLoading(false);
     }

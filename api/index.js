@@ -213,13 +213,165 @@ app.post('/api/feedback', (req, res) => {
   res.status(201).json({ success: true, message: 'Review submitted successfully!', feedback: fb });
 });
 
-// Production & Batches
-app.get('/api/production', (req, res) => {
-  res.status(200).json({ success: true, count: 2, batches: [] });
+let EXPIRY_BATCHES = [
+  {
+    _id: 1,
+    id: 1,
+    productId: PRODUCTS[0],
+    product: PRODUCTS[0],
+    batchNumber: 'BCH-MIL-00891',
+    manufactureDate: '2026-08-24',
+    expiryDate: '2026-08-26',
+    quantity: 45,
+    status: 'near-expiry',
+    daysLeft: 1,
+    notes: 'Morning pasteurized dispatch'
+  },
+  {
+    _id: 2,
+    id: 2,
+    productId: PRODUCTS[1],
+    product: PRODUCTS[1],
+    batchNumber: 'BCH-MIL-00892',
+    manufactureDate: '2026-08-25',
+    expiryDate: '2026-08-27',
+    quantity: 60,
+    status: 'fresh',
+    daysLeft: 2,
+    notes: 'Fresh toned milk batch'
+  },
+  {
+    _id: 3,
+    id: 3,
+    productId: PRODUCTS[4],
+    product: PRODUCTS[4],
+    batchNumber: 'BCH-CUR-00893',
+    manufactureDate: '2026-08-22',
+    expiryDate: '2026-08-28',
+    quantity: 35,
+    status: 'fresh',
+    daysLeft: 3,
+    notes: 'Natural Dahi batch'
+  },
+  {
+    _id: 4,
+    id: 4,
+    productId: PRODUCTS[7],
+    product: PRODUCTS[7],
+    batchNumber: 'BCH-PAN-00894',
+    manufactureDate: '2026-08-15',
+    expiryDate: '2026-08-30',
+    quantity: 25,
+    status: 'fresh',
+    daysLeft: 5,
+    notes: 'Vacuum packed malai paneer'
+  },
+  {
+    _id: 5,
+    id: 5,
+    productId: PRODUCTS[10],
+    product: PRODUCTS[10],
+    batchNumber: 'BCH-BUT-00870',
+    manufactureDate: '2026-08-10',
+    expiryDate: '2026-08-18',
+    quantity: 10,
+    status: 'expired',
+    daysLeft: -7,
+    notes: 'Marked for return/discard'
+  }
+];
+
+// Expiry Batches Routes
+app.get('/api/expiry', (req, res) => {
+  const { status, nearExpiryOnly } = req.query || {};
+  let list = EXPIRY_BATCHES;
+  if (status && status !== 'all') {
+    list = list.filter(b => b.status === status);
+  }
+  if (nearExpiryOnly === 'true') {
+    list = list.filter(b => b.status === 'near-expiry' || b.daysLeft <= 3);
+  }
+
+  const summary = {
+    totalBatches: EXPIRY_BATCHES.length,
+    freshCount: EXPIRY_BATCHES.filter(b => b.status === 'fresh').length,
+    nearExpiryCount: EXPIRY_BATCHES.filter(b => b.status === 'near-expiry').length,
+    nearExpiryRiskUnits: EXPIRY_BATCHES.filter(b => b.status === 'near-expiry').reduce((sum, b) => sum + b.quantity, 0),
+    expiredCount: EXPIRY_BATCHES.filter(b => b.status === 'expired').length,
+    expiredWastageUnits: EXPIRY_BATCHES.filter(b => b.status === 'expired').reduce((sum, b) => sum + b.quantity, 0),
+    discardedCount: EXPIRY_BATCHES.filter(b => b.status === 'discarded').length
+  };
+
+  res.status(200).json({ success: true, count: list.length, summary, batches: list });
 });
 
 app.get('/api/expiry/batches', (req, res) => {
-  res.status(200).json({ success: true, count: 2, batches: [] });
+  res.status(200).json({ success: true, count: EXPIRY_BATCHES.length, batches: EXPIRY_BATCHES });
+});
+
+app.post('/api/expiry', (req, res) => {
+  const matchedProd = PRODUCTS.find(p => p._id == req.body.productId || p.id == req.body.productId) || PRODUCTS[0];
+  const newBatch = {
+    ...req.body,
+    id: EXPIRY_BATCHES.length + 1,
+    _id: EXPIRY_BATCHES.length + 1,
+    productId: matchedProd,
+    product: matchedProd,
+    status: 'fresh',
+    daysLeft: 3
+  };
+  EXPIRY_BATCHES.unshift(newBatch);
+  res.status(201).json({ success: true, message: 'Batch logged successfully!', batch: newBatch });
+});
+
+app.patch('/api/expiry/:id/discard', (req, res) => {
+  const { id } = req.params;
+  const batch = EXPIRY_BATCHES.find(b => b.id == id || b._id == id);
+  if (batch) {
+    batch.status = 'discarded';
+    batch.discardReason = req.body?.discardReason || 'Spoiled/Damaged';
+  }
+  res.status(200).json({ success: true, message: 'Batch discarded and written off!', batch });
+});
+
+app.delete('/api/expiry/:id', (req, res) => {
+  const { id } = req.params;
+  EXPIRY_BATCHES = EXPIRY_BATCHES.filter(b => b.id != id && b._id != id);
+  res.status(200).json({ success: true, message: 'Batch removed successfully!' });
+});
+
+// Dashboard Stats endpoint alias
+app.get('/api/reports/dashboard-stats', (req, res) => {
+  res.status(200).json({
+    success: true,
+    stats: {
+      totalRevenue: 528698,
+      totalPurchasesCost: 433752,
+      grossProfit: 94946,
+      profitMargin: 18.0,
+      totalStockUnits: 1256,
+      totalProductsCount: PRODUCTS.length,
+      lowStockCount: 3,
+      expiringBatchesCount: 2,
+      todaySales: 24850,
+      todayPurchases: 18600
+    }
+  });
+});
+
+// Production & Batches
+let PRODUCTIONS = [
+  { _id: 1, id: 1, batchNumber: 'PRD-DAHI-001', rawMaterialName: 'Raw Cow Milk', rawMaterialUsed: 50, outputProductName: 'Mother Dairy Classic Dahi (400g)', outputQuantity: 45, date: '2026-08-25', status: 'completed' }
+];
+
+app.get('/api/production', (req, res) => {
+  res.status(200).json({ success: true, count: PRODUCTIONS.length, batches: PRODUCTIONS });
+});
+
+app.post('/api/production', (req, res) => {
+  const item = { ...req.body, id: PRODUCTIONS.length + 1, _id: PRODUCTIONS.length + 1, date: new Date().toISOString().split('T')[0], status: 'completed' };
+  PRODUCTIONS.unshift(item);
+  res.status(201).json({ success: true, message: 'Production batch recorded successfully!', batch: item });
 });
 
 app.get('/api/users', (req, res) => {
