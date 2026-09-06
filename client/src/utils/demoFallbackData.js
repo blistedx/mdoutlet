@@ -158,6 +158,22 @@ export const FALLBACK_PRODUCTS = [
     reorderThreshold: 40,
     quantity: 0,
     currentStock: 0
+  },
+  {
+    _id: 11,
+    id: 11,
+    name: "Haldiram's Soan Papdi (250g)",
+    category: 'sweets',
+    unit: 'box',
+    unitPrice: 90,
+    costPrice: 72,
+    qrCode: 'HR-SOAN-PAPDI-250G',
+    barcode: '8904063251077',
+    description: 'Flaky melt-in-the-mouth sweet pieces garnished with almonds & pistachios.',
+    shelfLifeDays: 150,
+    reorderThreshold: 15,
+    quantity: 0,
+    currentStock: 0
   }
 ];
 

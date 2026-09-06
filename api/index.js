@@ -21,7 +21,8 @@ const PRODUCTS = [
   { _id: 9, id: 9, name: 'Mother Dairy Fresh Paneer Block (1kg)', category: 'paneer', unit: 'block', unitPrice: 420, costPrice: 330, qrCode: 'MD-PANEER-1KG', barcode: '8901648003029', description: 'Bulk restaurant & home size soft malai paneer.', shelfLifeDays: 12, reorderThreshold: 10, currentQuantity: 0, isLowStock: false, isActive: true },
   { _id: 10, id: 10, name: 'Mother Dairy Pure Cow Ghee (1L Tin)', category: 'ghee', unit: 'tin', unitPrice: 650, costPrice: 510, qrCode: 'MD-GHEE-COW-1L', barcode: '8901648004019', description: 'Golden, granular and aromatic pure cow ghee made with traditional bilona process.', shelfLifeDays: 270, reorderThreshold: 10, currentQuantity: 0, isLowStock: false, isActive: true },
   { _id: 11, id: 11, name: 'Mother Dairy Salted Butter (500g)', category: 'butter', unit: 'pack', unitPrice: 275, costPrice: 220, qrCode: 'MD-BUTTER-SALT-500G', barcode: '8901648005016', description: 'Rich pasteurized cream table butter.', shelfLifeDays: 180, reorderThreshold: 15, currentQuantity: 0, isLowStock: false, isActive: true },
-  { _id: 12, id: 12, name: 'Mother Dairy Masala Chaach (200ml)', category: 'buttermilk', unit: 'pouch', unitPrice: 15, costPrice: 10, qrCode: 'MD-CHAACH-MASALA-200M', barcode: '8901648006013', description: 'Refreshing spiced buttermilk with roasted jeera & rock salt.', shelfLifeDays: 8, reorderThreshold: 40, currentQuantity: 0, isLowStock: false, isActive: true }
+  { _id: 12, id: 12, name: 'Mother Dairy Masala Chaach (200ml)', category: 'buttermilk', unit: 'pouch', unitPrice: 15, costPrice: 10, qrCode: 'MD-CHAACH-MASALA-200M', barcode: '8901648006013', description: 'Refreshing spiced buttermilk with roasted jeera & rock salt.', shelfLifeDays: 8, reorderThreshold: 40, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 13, id: 13, name: "Haldiram's Soan Papdi (250g)", category: 'sweets', unit: 'box', unitPrice: 90, costPrice: 72, qrCode: 'HR-SOAN-PAPDI-250G', barcode: '8904063251077', description: 'Flaky melt-in-the-mouth sweet pieces garnished with almonds & pistachios.', shelfLifeDays: 150, reorderThreshold: 15, currentQuantity: 0, isLowStock: false, isActive: true }
 ];
 
 let PURCHASES = [];
@@ -57,6 +58,85 @@ app.get('/api/auth/me', (req, res) => {
   res.status(200).json({
     success: true,
     user: { id: 1, _id: 1, name: 'Mother Dairy Admin', email: 'admin@dairy.com', role: 'admin' }
+  });
+});
+
+// Universal Online & Local Barcode Lookup (Open Food Facts + Local Catalog)
+app.get('/api/products/lookup-barcode/:barcode', async (req, res) => {
+  const { barcode } = req.params;
+  const clean = (barcode || '').trim();
+  const upper = clean.toUpperCase();
+
+  // 1. Check local catalog
+  const found = PRODUCTS.find(p => 
+    (p.barcode && p.barcode.toUpperCase() === upper) ||
+    p.qrCode.toUpperCase() === upper ||
+    String(p.id) === clean ||
+    String(p._id) === clean
+  );
+
+  if (found) {
+    return res.status(200).json({ success: true, source: 'local', product: found });
+  }
+
+  // 2. Query Open Food Facts API (Indian & Global FMCG Products)
+  try {
+    const offRes = await fetch(`https://world.openfoodfacts.org/api/v2/product/${clean}.json`);
+    if (offRes.ok) {
+      const data = await offRes.json();
+      if (data && data.status === 1 && data.product) {
+        const p = data.product;
+        const brand = p.brands || '';
+        const name = p.product_name_en || p.product_name || (brand ? `${brand} Item` : 'Packaged Retail Item');
+        const weight = p.quantity || p.net_weight || '250 g';
+        const fullName = weight && !name.includes(weight) ? `${name} (${weight})` : name;
+        
+        let cat = 'dairy';
+        const cats = (p.categories || '').toLowerCase();
+        if (cats.includes('sweet') || cats.includes('dessert') || cats.includes('confectionery')) cat = 'sweets';
+        else if (cats.includes('milk') || cats.includes('beverage')) cat = 'milk';
+        else if (cats.includes('paneer') || cats.includes('cheese')) cat = 'paneer';
+        else if (cats.includes('ghee') || cats.includes('butter') || cats.includes('fat')) cat = 'ghee';
+        else if (cats.includes('curd') || cats.includes('yogurt')) cat = 'curd';
+
+        const detectedProd = {
+          name: fullName,
+          brand: brand || 'Retail Brand',
+          category: cat,
+          barcode: clean,
+          unit: weight || 'pack',
+          unitPrice: 90,
+          costPrice: 72,
+          shelfLifeDays: 90,
+          description: p.generic_name || p.ingredients_text || 'Scanned Retail Product',
+          image: p.image_front_small_url || p.image_url || null
+        };
+
+        return res.status(200).json({
+          success: true,
+          source: 'openfoodfacts',
+          product: detectedProd
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('Open Food Facts lookup failed:', err.message);
+  }
+
+  // 3. Unlisted / New barcode template
+  return res.status(200).json({
+    success: true,
+    source: 'unlisted',
+    product: {
+      name: `Retail Item (${clean})`,
+      category: 'dairy',
+      barcode: clean,
+      unit: 'pack',
+      unitPrice: 60,
+      costPrice: 48,
+      shelfLifeDays: 30,
+      description: 'Auto-detected via barcode scan'
+    }
   });
 });
 
@@ -128,24 +208,45 @@ app.get('/api/stock', (req, res) => {
 });
 
 app.post('/api/stock/inward', (req, res) => {
-  const { productId, barcode, quantity, costPrice, expiryDate, batchNumber, supplierName, notes } = req.body;
+  const { productId, barcode, productName, name, category, unit, unitPrice, quantity, costPrice, expiryDate, batchNumber, supplierName, notes } = req.body;
   const numQty = Number(quantity) || 1;
   const cleanCode = (barcode || '').toString().trim().toUpperCase();
 
-  const prod = PRODUCTS.find(p => 
+  let prod = PRODUCTS.find(p => 
     (productId && (String(p.id) === String(productId) || String(p._id) === String(productId))) ||
     (cleanCode && ((p.barcode && p.barcode.toUpperCase() === cleanCode) || p.qrCode.toUpperCase() === cleanCode))
   );
 
+  // Auto-register unlisted or new barcode product seamlessly
   if (!prod) {
-    return res.status(404).json({ success: false, message: 'Product not found for barcode: ' + (barcode || productId) });
+    const prodName = productName || name || `Retail Item (${cleanCode || 'Barcode'})`;
+    const uPrice = Number(unitPrice) || Math.round(Number(costPrice || 50) * 1.25) || 60;
+    const cPrice = Number(costPrice) || Math.round(uPrice * 0.8) || 45;
+    prod = {
+      _id: PRODUCTS.length + 1,
+      id: PRODUCTS.length + 1,
+      name: prodName,
+      category: category || 'dairy',
+      unit: unit || 'pack',
+      unitPrice: uPrice,
+      costPrice: cPrice,
+      qrCode: `MD-${cleanCode || Date.now().toString().slice(-6)}`,
+      barcode: cleanCode || '',
+      description: req.body.description || 'Auto-registered via barcode scan',
+      shelfLifeDays: Number(req.body.shelfLifeDays) || 30,
+      reorderThreshold: 15,
+      currentQuantity: 0,
+      isLowStock: false,
+      isActive: true
+    };
+    PRODUCTS.unshift(prod);
   }
 
   const cost = Number(costPrice) || (prod.costPrice || 30);
   prod.currentQuantity = Number(prod.currentQuantity || 0) + numQty;
   prod.isLowStock = prod.currentQuantity <= (prod.reorderThreshold || 20);
 
-  const batch = batchNumber || `BCH-${prod.category.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-5)}`;
+  const batch = batchNumber || `BCH-${(prod.category || 'MLK').slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-5)}`;
   const calcExpiry = expiryDate || new Date(Date.now() + (prod.shelfLifeDays || 3) * 86400000).toISOString().split('T')[0];
 
   const purchaseItem = {

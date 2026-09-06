@@ -1,9 +1,51 @@
-import React from 'react';
-import { Menu, ScanBarcode, QrCode, Sparkles, Clock, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, ScanBarcode, QrCode, Sparkles, Clock, Bell, Download, Smartphone } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = ({ onOpenMobileMenu, onOpenScanner }) => {
   const { user } = useAuth();
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    // Check if app is already running in standalone mode (installed PWA)
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsInstalled(true);
+    }
+
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        setIsInstalled(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      // Fallback instructions for iOS or already supported browsers
+      alert('To install this app on your phone:\n\n• Android: Tap browser menu (⋮) and tap "Install app" or "Add to Home Screen".\n• iPhone/iPad: Tap the Share button (⎋) in Safari and choose "Add to Home Screen".');
+    }
+  };
+
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
@@ -33,8 +75,21 @@ const Navbar = ({ onOpenMobileMenu, onOpenScanner }) => {
         </div>
       </div>
 
-      {/* Right Controls: Barcode Scanner Quick Launch Button & User Pill */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      {/* Right Controls: Install App, Barcode Scanner Quick Launch & User Pill */}
+      <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* PWA Install Button */}
+        {!isInstalled && (
+          <button
+            onClick={handleInstallClick}
+            className="px-3 py-2 bg-[#f4f8f2] hover:bg-emerald-50 text-emerald-900 border border-emerald-300/80 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs hover:scale-105 active:scale-95"
+            title="Install Mother Dairy Outlet PWA App on Phone or PC"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-emerald-700" />
+            <span className="hidden sm:inline">Install App</span>
+            <span className="sm:hidden">Install</span>
+          </button>
+        )}
+
         {/* Quick Barcode Scanner Button */}
         <button
           onClick={onOpenScanner}
@@ -57,7 +112,6 @@ const Navbar = ({ onOpenMobileMenu, onOpenScanner }) => {
         </div>
       </div>
     </header>
-
   );
 };
 

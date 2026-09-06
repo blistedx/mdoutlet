@@ -150,9 +150,21 @@ export const quickStockInward = async (req, res) => {
     }
 
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: `Product not found for barcode/identifier "${barcode || productId}"`
+      const cleanCode = (barcode || '').toString().trim();
+      const prodName = req.body.productName || req.body.name || (cleanCode ? `Retail Item (${cleanCode})` : 'New Scanned Item');
+      const uPrice = Number(req.body.unitPrice) || (costPrice ? Math.round(Number(costPrice) * 1.25) : 90);
+      const cPrice = costPrice !== undefined && costPrice !== '' ? Number(costPrice) : Math.round(uPrice * 0.8);
+      product = await Product.create({
+        name: prodName,
+        category: req.body.category || 'sweets',
+        unit: req.body.unit || 'pack',
+        unitPrice: uPrice,
+        costPrice: cPrice,
+        barcode: cleanCode || null,
+        qrCode: `MD-${cleanCode || Date.now().toString().slice(-6)}`,
+        shelfLifeDays: Number(req.body.shelfLifeDays) || 90,
+        reorderThreshold: 15,
+        isActive: true
       });
     }
 
