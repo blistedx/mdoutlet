@@ -87,13 +87,13 @@ const Purchases = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProductsApi({ activeOnly: true });
-      if (res.data?.success && res.data.products?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.products)) {
         setProducts(res.data.products);
       } else {
-        setProducts(FALLBACK_PRODUCTS);
+        setProducts([]);
       }
     } catch (e) {
-      setProducts(FALLBACK_PRODUCTS);
+      setProducts([]);
     }
   };
 
@@ -105,14 +105,14 @@ const Purchases = () => {
       if (endDate) params.endDate = endDate;
 
       const res = await getPurchasesApi(params);
-      if (res.data?.success && res.data.purchases?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.purchases)) {
         setPurchases(res.data.purchases);
       } else {
-        setPurchases(FALLBACK_PURCHASES);
+        setPurchases([]);
       }
     } catch (error) {
-      console.warn('Purchases load fallback active:', error?.message);
-      setPurchases(FALLBACK_PURCHASES);
+      console.warn('Purchases load error:', error?.message);
+      setPurchases([]);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -25,7 +25,7 @@ import {
   X
 } from 'lucide-react';
 import { DAIRY_CATEGORIES } from '../utils/categories';
-import { submitFeedbackApi } from '../services/api';
+import { submitFeedbackApi, getProductsApi } from '../services/api';
 import { useToast } from '../context/ToastContext';
 
 const LandingPage = () => {
@@ -79,40 +79,23 @@ const LandingPage = () => {
   };
 
 
-  const featuredProducts = [
-    {
-      name: 'Full Cream Fresh Milk',
-      category: 'Milk & Pouch',
-      icon: '🥛',
-      desc: '6.0% Milk Fat, rich and pasteurized for creamy tea & coffee.',
-      tag: 'Bestseller',
-      color: 'bg-emerald-50 text-emerald-800 border-emerald-200'
-    },
-    {
-      name: 'Artisanal Malai Paneer',
-      category: 'Paneer & Cottage Cheese',
-      icon: '🧀',
-      desc: 'Ultra-soft, melt-in-mouth cottage cheese paneer blocks.',
-      tag: 'Fresh Daily',
-      color: 'bg-amber-50 text-amber-800 border-amber-200'
-    },
-    {
-      name: 'Shuddh Danedar Cow Ghee',
-      category: 'Desi Ghee',
-      icon: '🫙',
-      desc: 'Slow-cooked golden aromatic granulated cow ghee with rich aroma.',
-      tag: 'Pure A2',
-      color: 'bg-yellow-50 text-yellow-800 border-yellow-200'
-    },
-    {
-      name: 'Classic Probiotic Dahi',
-      category: 'Curd & Yogurt',
-      icon: '🥣',
-      desc: 'Thick, creamy set curd cultured with beneficial gut probiotics.',
-      tag: 'Probiotic',
-      color: 'bg-blue-50 text-blue-800 border-blue-200'
-    }
-  ];
+  const [liveProducts, setLiveProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchLiveProducts = async () => {
+      try {
+        const res = await getProductsApi({ activeOnly: true });
+        if (res.data?.success && Array.isArray(res.data.products)) {
+          setLiveProducts(res.data.products);
+        } else {
+          setLiveProducts([]);
+        }
+      } catch (err) {
+        setLiveProducts([]);
+      }
+    };
+    fetchLiveProducts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f4f8f2] text-[#1e3a1e] font-sans antialiased overflow-x-hidden">
@@ -325,64 +308,95 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {featuredProducts.map((p, idx) => (
-              <div 
-                key={idx}
-                className="bg-white rounded-3xl p-6 border border-[#a0c396]/25 shadow-soft hover:shadow-xl transition-all space-y-4 flex flex-col justify-between group"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-4xl group-hover:scale-110 transition-transform block">
-                      {p.icon}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${p.color}`}>
-                      {p.tag}
-                    </span>
+          {liveProducts.length === 0 ? (
+            <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-[#a0c396]/30 shadow-sm max-w-xl mx-auto space-y-4">
+              <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-800 flex items-center justify-center mx-auto text-3xl shadow-xs border border-emerald-100">
+                ✨
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="font-serif text-xl font-black text-[#1e3a1e]">Fresh ERP Initialized</h3>
+                <p className="text-xs text-[#3f5a3f] leading-relaxed">
+                  All demo products, stock, and mock categories have been wiped. Your ERP is fresh, clean, and ready for real operations.
+                </p>
+              </div>
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  to="/products"
+                  className="px-5 py-2.5 bg-[#1e3a1e] hover:bg-[#162c16] text-white rounded-2xl text-xs font-bold shadow-md shadow-[#1e3a1e]/20 transition-all flex items-center gap-1.5"
+                >
+                  <Boxes className="w-4 h-4" />
+                  <span>+ Add First Product</span>
+                </Link>
+                <Link
+                  to="/stock"
+                  className="px-5 py-2.5 bg-[#0B4F9C] hover:bg-[#083D7A] text-white rounded-2xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5"
+                >
+                  <span>📷 Scan Retail Barcode</span>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {liveProducts.slice(0, 8).map((p, idx) => (
+                <div 
+                  key={p.id || idx}
+                  className="bg-white rounded-3xl p-6 border border-[#a0c396]/25 shadow-soft hover:shadow-xl transition-all space-y-4 flex flex-col justify-between group"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-4xl group-hover:scale-110 transition-transform block">
+                        🥛
+                      </span>
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-800 border-emerald-200">
+                        ₹{p.unitPrice}
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif text-lg font-bold text-[#1e3a1e] leading-snug">
+                      {p.name}
+                    </h3>
+
+                    <p className="text-xs text-[#3f5a3f] leading-relaxed line-clamp-2">
+                      {p.description || 'Verified Dairy Inventory Master Record'}
+                    </p>
                   </div>
 
-                  <h3 className="font-serif text-lg font-bold text-[#1e3a1e] leading-snug">
-                    {p.name}
-                  </h3>
-
-                  <p className="text-xs text-[#3f5a3f] leading-relaxed">
-                    {p.desc}
-                  </p>
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-[#6a9c6a]">
+                      {p.category}
+                    </span>
+                    <Link
+                      to="/products"
+                      className="p-1.5 bg-[#f4f8f2] hover:bg-[#1e3a1e] hover:text-white rounded-xl text-xs font-bold transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
                 </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-[#6a9c6a]">
-                    {p.category}
-                  </span>
-                  <Link
-                    to="/products"
-                    className="p-1.5 bg-[#f4f8f2] hover:bg-[#1e3a1e] hover:text-white rounded-xl text-xs font-bold transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Quick Categories Bar */}
-          <div className="bg-white rounded-3xl p-5 border border-[#a0c396]/30 shadow-xs">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-              <span className="text-xs font-bold text-[#1e3a1e] whitespace-nowrap pl-2 pr-3 border-r border-slate-200">
-                All 18 Categories:
-              </span>
-              {DAIRY_CATEGORIES.filter(c => c.id !== 'All').map((cat) => (
-                <Link
-                  key={cat.id}
-                  to="/products"
-                  className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-[#f4f8f2] hover:bg-[#ebf5eb] text-[#2d4a2d] whitespace-nowrap transition-colors flex items-center gap-1.5"
-                >
-                  <span>{cat.icon}</span>
-                  <span>{cat.label.split('(')[0].trim()}</span>
-                </Link>
               ))}
             </div>
-          </div>
+          )}
+
+          {/* Quick Categories Bar (only if products exist) */}
+          {liveProducts.length > 0 && (
+            <div className="bg-white rounded-3xl p-5 border border-[#a0c396]/30 shadow-xs">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                <span className="text-xs font-bold text-[#1e3a1e] whitespace-nowrap pl-2 pr-3 border-r border-slate-200">
+                  Categories:
+                </span>
+                {DAIRY_CATEGORIES.filter(c => c.id !== 'All' && liveProducts.some(p => p.category === c.id)).map((cat) => (
+                  <Link
+                    key={cat.id}
+                    to="/products"
+                    className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-[#f4f8f2] hover:bg-[#ebf5eb] text-[#2d4a2d] whitespace-nowrap transition-colors flex items-center gap-1.5"
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.label.split('(')[0].trim()}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* ─── 4. ERP Capabilities & Features Grid ─── */}

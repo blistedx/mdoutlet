@@ -84,13 +84,13 @@ const Sales = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProductsApi({ activeOnly: true });
-      if (res.data?.success && res.data.products?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.products)) {
         setProducts(res.data.products);
       } else {
-        setProducts(FALLBACK_PRODUCTS);
+        setProducts([]);
       }
     } catch (e) {
-      setProducts(FALLBACK_PRODUCTS);
+      setProducts([]);
     }
   };
 
@@ -102,14 +102,14 @@ const Sales = () => {
       if (endDate) params.endDate = endDate;
 
       const res = await getSalesApi(params);
-      if (res.data?.success && res.data.sales?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.sales)) {
         setSales(res.data.sales);
       } else {
-        setSales(FALLBACK_SALES);
+        setSales([]);
       }
     } catch (error) {
-      console.warn('Sales load fallback active:', error?.message);
-      setSales(FALLBACK_SALES);
+      console.warn('Sales load error:', error?.message);
+      setSales([]);
     } finally {
       setLoading(false);
     }

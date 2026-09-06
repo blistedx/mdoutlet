@@ -42,40 +42,19 @@ export const getProducts = async (req, res) => {
         return {
           ...pJson,
           _id: pJson.id,
-          currentQuantity: stock ? Number(stock.currentQuantity) : (pJson.initialQuantity || 50),
+          currentQuantity: stock ? Number(stock.currentQuantity) : (pJson.initialQuantity || 0),
           reorderThreshold: stock ? Number(stock.reorderThreshold) : Number(pJson.reorderThreshold || 20),
           isLowStock: stock ? Number(stock.currentQuantity) <= Number(stock.reorderThreshold || 20) : false
         };
       });
     } catch (dbErr) {
-      console.warn('[Products DB query fallback]:', dbErr.message);
+      console.warn('[Products DB query]:', dbErr.message);
+      productsWithStock = [];
     }
 
-    // Return mapped DEMO_PRODUCTS if database query returned 0 rows
-    if (!productsWithStock || productsWithStock.length === 0) {
-      productsWithStock = DEMO_PRODUCTS.map((p, idx) => ({
-        ...p,
-        id: idx + 1,
-        _id: idx + 1,
-        currentQuantity: p.initialQuantity || 60,
-        reorderThreshold: p.reorderThreshold || 20,
-        isLowStock: (p.initialQuantity || 60) <= (p.reorderThreshold || 20),
-        isActive: true
-      }));
-    }
-
-    res.status(200).json({ success: true, count: productsWithStock.length, products: productsWithStock });
+    res.status(200).json({ success: true, count: (productsWithStock || []).length, products: productsWithStock || [] });
   } catch (error) {
-    const fallback = DEMO_PRODUCTS.map((p, idx) => ({
-      ...p,
-      id: idx + 1,
-      _id: idx + 1,
-      currentQuantity: p.initialQuantity || 60,
-      reorderThreshold: p.reorderThreshold || 20,
-      isLowStock: false,
-      isActive: true
-    }));
-    res.status(200).json({ success: true, count: fallback.length, products: fallback });
+    res.status(200).json({ success: true, count: 0, products: [] });
   }
 };
 

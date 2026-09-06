@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   getProductsApi, 
   createProductApi, 
@@ -67,14 +67,14 @@ const ProductManagement = () => {
     try {
       setLoading(true);
       const res = await getProductsApi();
-      if (res.data?.success && res.data.products?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.products)) {
         setProducts(res.data.products);
       } else {
-        setProducts(FALLBACK_PRODUCTS);
+        setProducts([]);
       }
     } catch (error) {
       console.warn('Product load fallback active:', error?.message);
-      setProducts(FALLBACK_PRODUCTS);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -167,6 +167,14 @@ const ProductManagement = () => {
     return matchesCat && matchesQuery;
   });
 
+  const displayedCategories = useMemo(() => {
+    const presentCats = new Set((products || []).map(p => p.category).filter(Boolean));
+    if (presentCats.size === 0) {
+      return [{ id: 'All', label: 'All Categories', icon: '🥛' }];
+    }
+    return DAIRY_CATEGORIES.filter(c => c.id === 'All' || presentCats.has(c.id));
+  }, [products]);
+
 
   return (
     <div className="space-y-6">
@@ -219,7 +227,7 @@ const ProductManagement = () => {
 
           {/* Category Filter */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-            {DAIRY_CATEGORIES.map((cat) => (
+            {displayedCategories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setCategoryFilter(cat.id)}

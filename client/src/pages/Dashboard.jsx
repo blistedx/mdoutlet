@@ -116,30 +116,30 @@ const Dashboard = () => {
         getExpiryBatchesApi()
       ]);
 
-      let loadedProducts = FALLBACK_PRODUCTS;
-      if (productsRes.status === 'fulfilled' && productsRes.value?.data?.success && productsRes.value.data.products?.length > 0) {
+      let loadedProducts = [];
+      if (productsRes.status === 'fulfilled' && productsRes.value?.data?.success && Array.isArray(productsRes.value.data.products)) {
         loadedProducts = productsRes.value.data.products;
         setProducts(loadedProducts);
       } else {
-        setProducts(FALLBACK_PRODUCTS);
+        setProducts([]);
       }
 
-      if (salesRes.status === 'fulfilled' && salesRes.value?.data?.success && salesRes.value.data.sales?.length > 0) {
+      if (salesRes.status === 'fulfilled' && salesRes.value?.data?.success && Array.isArray(salesRes.value.data.sales)) {
         setSales(salesRes.value.data.sales);
       } else {
-        setSales(FALLBACK_SALES);
+        setSales([]);
       }
 
-      if (purchasesRes.status === 'fulfilled' && purchasesRes.value?.data?.success && purchasesRes.value.data.purchases?.length > 0) {
+      if (purchasesRes.status === 'fulfilled' && purchasesRes.value?.data?.success && Array.isArray(purchasesRes.value.data.purchases)) {
         setPurchases(purchasesRes.value.data.purchases);
       } else {
-        setPurchases(FALLBACK_PURCHASES);
+        setPurchases([]);
       }
 
-      if (batchesRes.status === 'fulfilled' && batchesRes.value?.data?.success && batchesRes.value.data.batches?.length > 0) {
+      if (batchesRes.status === 'fulfilled' && batchesRes.value?.data?.success && Array.isArray(batchesRes.value.data.batches)) {
         setBatches(batchesRes.value.data.batches);
       } else {
-        setBatches(FALLBACK_EXPIRY_BATCHES);
+        setBatches([]);
       }
 
       // Compute live stock units directly from products so it's always accurate & reactive

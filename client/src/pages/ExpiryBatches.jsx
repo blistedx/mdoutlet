@@ -62,11 +62,13 @@ const ExpiryBatches = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProductsApi({ activeOnly: true });
-      if (res.data?.success && res.data?.products?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data?.products)) {
         setProducts(res.data.products);
+      } else {
+        setProducts([]);
       }
     } catch (e) {
-      console.warn('Using fallback products');
+      setProducts([]);
     }
   };
 

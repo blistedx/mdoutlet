@@ -705,7 +705,7 @@ export const seedDemoProducts = async () => {
 
 export const clearAllDemoData = async () => {
   try {
-    console.log('[Clean] Clearing demo transactions, batches, and resetting stock...');
+    console.log('[Clean] Clearing all products, stock, demo transactions, and batches...');
     await ProductionOutput.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await Production.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await ExpiryBatch.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
@@ -713,13 +713,12 @@ export const clearAllDemoData = async () => {
     await Purchase.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await Feedback.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await AuditLog.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
-
-    // Reset stock to 0
-    await Stock.update({ currentQuantity: 0 }, { where: {} }).catch(() => {});
+    await Stock.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
+    await Product.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
 
     await initializeDefaultUsers();
-    console.log('[Clean] Database is clean with 0 stock and no fake demo data.');
-    return { success: true, message: 'All demo data removed successfully.' };
+    console.log('[Clean] Fresh ERP initialized with 0 products, 0 stock, and zero transactions.');
+    return { success: true, message: 'All demo products, categories, stock, and transactions removed successfully.' };
   } catch (error) {
     console.error('[Clean Error]:', error.message);
     throw error;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { 
   getStockLevelsApi, 
@@ -18,25 +18,32 @@ import {
   Edit3, 
   RefreshCw, 
   Filter, 
-  TrendingDown, 
-  PackageCheck,
-  QrCode,
+  ArrowUpRight, 
+  ShieldAlert,
+  Calendar,
+  Layers,
   ScanBarcode
 } from 'lucide-react';
 import { DAIRY_CATEGORIES, getCategoryMeta } from '../utils/categories';
 import { FALLBACK_STOCKS } from '../utils/demoFallbackData';
 
 const StockView = () => {
-  const [searchParams] = useSearchParams();
-  const { isAdmin } = useAuth();
-  const { addToast } = useToast();
-
   const [stocks, setStocks] = useState([]);
-  const [summary, setSummary] = useState(null);
+  const [summary, setSummary] = useState({
+    totalProducts: 0,
+    totalQuantity: 0,
+    lowStockCount: 0,
+    expiringBatchesCount: 0
+  });
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
-  const [lowStockFilter, setLowStockFilter] = useState(searchParams.get('filter') === 'low');
+  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const lowStockFilter = searchParams.get('lowStockOnly') === 'true';
+
+  const { addToast } = useToast();
+  const { isAdmin } = useAuth();
 
   // Modal State for updating reorder threshold
   const [selectedStockForThreshold, setSelectedStockForThreshold] = useState(null);
@@ -59,26 +66,31 @@ const StockView = () => {
     try {
       setLoading(true);
       const res = await getStockLevelsApi({ lowStockOnly: lowStockFilter });
-      if (res.data?.success && res.data.stocks?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.stocks)) {
         setStocks(res.data.stocks);
-        setSummary(res.data.summary);
+        setSummary(res.data.summary || {
+          totalProducts: res.data.stocks.length,
+          totalQuantity: res.data.stocks.reduce((acc, s) => acc + (s.quantity || 0), 0),
+          lowStockCount: 0,
+          expiringBatchesCount: 0
+        });
       } else {
-        setStocks(FALLBACK_STOCKS);
+        setStocks([]);
         setSummary({
-          totalProducts: FALLBACK_STOCKS.length,
-          totalQuantity: FALLBACK_STOCKS.reduce((acc, s) => acc + (s.quantity || 0), 0),
-          lowStockCount: 2,
-          expiringBatchesCount: 1
+          totalProducts: 0,
+          totalQuantity: 0,
+          lowStockCount: 0,
+          expiringBatchesCount: 0
         });
       }
     } catch (error) {
-      console.warn('Stock load fallback active:', error?.message);
-      setStocks(FALLBACK_STOCKS);
+      console.warn('Stock load error:', error?.message);
+      setStocks([]);
       setSummary({
-        totalProducts: FALLBACK_STOCKS.length,
-        totalQuantity: FALLBACK_STOCKS.reduce((acc, s) => acc + (s.quantity || 0), 0),
-        lowStockCount: 2,
-        expiringBatchesCount: 1
+        totalProducts: 0,
+        totalQuantity: 0,
+        lowStockCount: 0,
+        expiringBatchesCount: 0
       });
     } finally {
       setLoading(false);
@@ -112,6 +124,14 @@ const StockView = () => {
       setSavingThreshold(false);
     }
   };
+
+  const displayedCategories = useMemo(() => {
+    const presentCats = new Set((stocks || []).map(s => s?.productId?.category || s?.product?.category).filter(Boolean));
+    if (presentCats.size === 0) {
+      return [{ id: 'All', label: 'All Categories', icon: '🥛' }];
+    }
+    return DAIRY_CATEGORIES.filter(c => c.id === 'All' || presentCats.has(c.id));
+  }, [stocks]);
 
   // Filtered in-memory for immediate UI search
   const filteredStocks = (stocks || []).filter((s) => {
@@ -232,7 +252,7 @@ const StockView = () => {
 
         {/* Category Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 pb-1">
-          {DAIRY_CATEGORIES.map((cat) => (
+          {displayedCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setCategoryFilter(cat.id)}
