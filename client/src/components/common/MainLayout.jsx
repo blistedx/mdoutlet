@@ -67,11 +67,15 @@ const MainLayout = () => {
         </main>
       </div>
 
-      {/* 3. Global QR Scanner Modal */}
+      {/* 3. Global Barcode Scanner & Quick Inward Modal */}
       <QrScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
-        onScanSuccess={handleGlobalScan}
+        mode="inward"
+        onStockAdded={() => {
+          // Dispatch custom event so active pages (like StockView or Purchases) can auto-refresh
+          window.dispatchEvent(new CustomEvent('stock-updated'));
+        }}
       />
     </div>
   );

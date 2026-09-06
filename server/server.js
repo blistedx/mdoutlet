@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB, sequelize, activeDatabaseType } from './config/database.js';
 import { User } from './models/index.js';
-import { initializeDefaultUsers, seedDatabase } from './utils/seedData.js';
+import { initializeDefaultUsers, seedDatabase, clearAllDemoData } from './utils/seedData.js';
 import { initCronJobs } from './services/cronService.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -99,6 +99,11 @@ const startServer = async () => {
 
     // Sync all Sequelize models with database tables
     await sequelize.sync();
+    try {
+      await sequelize.query("ALTER TABLE products ADD COLUMN barcode VARCHAR(100);");
+    } catch (e) {
+      // Column already exists or table freshly created
+    }
     console.log(`[Database] All database tables synced successfully.`);
 
 

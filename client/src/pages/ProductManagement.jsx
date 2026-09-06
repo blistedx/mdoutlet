@@ -53,6 +53,7 @@ const ProductManagement = () => {
     unitPrice: 50,
     costPrice: 40,
     qrCode: '',
+    barcode: '',
     description: '',
     shelfLifeDays: 3,
     reorderThreshold: 20
@@ -90,6 +91,7 @@ const ProductManagement = () => {
       unitPrice: 50,
       costPrice: 40,
       qrCode: `DAIRY-MLK-${Date.now().toString().slice(-4)}`,
+      barcode: `890164800${Math.floor(1000 + Math.random() * 9000)}`,
       description: '',
       shelfLifeDays: 3,
       reorderThreshold: 20
@@ -107,6 +109,7 @@ const ProductManagement = () => {
       unitPrice: product.unitPrice,
       costPrice: product.costPrice || Math.round(product.unitPrice * 0.8),
       qrCode: product.qrCode,
+      barcode: product.barcode || '',
       description: product.description || '',
       shelfLifeDays: product.shelfLifeDays || 3,
       reorderThreshold: product.reorderThreshold || 20
@@ -276,8 +279,13 @@ const ProductManagement = () => {
                 <h3 className="font-black text-sm text-slate-900 mt-2 leading-tight">
                   {product.name}
                 </h3>
-                <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                  QR: <strong className="text-dairy-blue">{product.qrCode}</strong>
+                <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono mt-0.5 flex-wrap">
+                  <span>QR: <strong className="text-dairy-blue">{product.qrCode}</strong></span>
+                  {product.barcode && (
+                    <span className="text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 font-bold">
+                      BAR: {product.barcode}
+                    </span>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100 text-xs">
@@ -456,17 +464,32 @@ const ProductManagement = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              QR Code Identifier
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.qrCode}
-              onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                QR Code Identifier
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.qrCode}
+                onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Barcode (EAN-13 / 1D)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 8901648001018"
+                value={formData.barcode}
+                onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]"
+              />
+            </div>
           </div>
 
           <div className="flex gap-2 pt-2">

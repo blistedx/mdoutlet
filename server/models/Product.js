@@ -47,6 +47,11 @@ Product.init(
       allowNull: false,
       unique: true
     },
+    barcode: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      defaultValue: null
+    },
     description: {
       type: DataTypes.TEXT,
       defaultValue: ''

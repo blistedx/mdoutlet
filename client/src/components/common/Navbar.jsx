@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Camera, QrCode, Sparkles, Clock, Bell } from 'lucide-react';
+import { Menu, ScanBarcode, QrCode, Sparkles, Clock, Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = ({ onOpenMobileMenu, onOpenScanner }) => {
@@ -33,16 +33,17 @@ const Navbar = ({ onOpenMobileMenu, onOpenScanner }) => {
         </div>
       </div>
 
-      {/* Right Controls: QR Scanner Quick Launch Button & User Pill */}
+      {/* Right Controls: Barcode Scanner Quick Launch Button & User Pill */}
       <div className="flex items-center gap-2.5 sm:gap-3">
-        {/* Quick QR Scanner Button */}
+        {/* Quick Barcode Scanner Button */}
         <button
           onClick={onOpenScanner}
-          className="px-3.5 sm:px-4 py-2 bg-[#1e3a1e] hover:bg-[#2d4a2d] text-[#f8f5f0] rounded-full text-xs font-bold shadow-md shadow-[#1e3a1e]/15 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+          className="px-3.5 sm:px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-full text-xs font-black shadow-md shadow-emerald-900/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 border border-emerald-700/50"
+          title="Open Barcode Scanner (Inward Stock)"
         >
-          <Camera className="w-4 h-4 text-[#9bc09b]" />
-          <span className="hidden sm:inline">Scan QR Product</span>
-          <span className="sm:hidden">Scan</span>
+          <ScanBarcode className="w-4 h-4 text-emerald-300" />
+          <span className="hidden sm:inline">Barcode Scanner</span>
+          <span className="sm:hidden">Barcode</span>
         </button>
 
         {/* User Info Tag */}

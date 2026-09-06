@@ -10,37 +10,23 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // In-Memory Global Datasets for Serverless Runtime
 const PRODUCTS = [
-  { _id: 1, id: 1, name: 'Mother Dairy Full Cream Milk (1L)', category: 'milk', unit: 'litre', unitPrice: 68, costPrice: 54, qrCode: 'MD-MILK-FC-1L', description: 'Pasteurized homogenized full cream milk with 6.0% FAT & 9.0% SNF.', shelfLifeDays: 2, reorderThreshold: 25, currentQuantity: 80, isLowStock: false, isActive: true },
-  { _id: 2, id: 2, name: 'Mother Dairy Toned Milk (500ml)', category: 'milk', unit: 'packet', unitPrice: 28, costPrice: 22, qrCode: 'MD-MILK-TONED-500M', description: 'Fresh toned milk with 3.0% FAT & 8.5% SNF.', shelfLifeDays: 2, reorderThreshold: 30, currentQuantity: 120, isLowStock: false, isActive: true },
-  { _id: 3, id: 3, name: 'Mother Dairy Live Cow Milk (1L)', category: 'milk', unit: 'litre', unitPrice: 58, costPrice: 46, qrCode: 'MD-MILK-COW-1L', description: '100% natural, easily digestible cow milk rich in Calcium.', shelfLifeDays: 2, reorderThreshold: 20, currentQuantity: 60, isLowStock: false, isActive: true },
-  { _id: 4, id: 4, name: 'Fresh Chilled Raw Cow Milk (Bulk)', category: 'raw-milk', unit: 'litre', unitPrice: 48, costPrice: 40, qrCode: 'MD-RAW-COW-BULK', description: 'Direct farm milk collected from local dairy farmers for processing.', shelfLifeDays: 1, reorderThreshold: 50, currentQuantity: 200, isLowStock: false, isActive: true },
-  { _id: 5, id: 5, name: 'Mother Dairy Classic Dahi / Curd (400g)', category: 'curd', unit: 'pack', unitPrice: 45, costPrice: 34, qrCode: 'MD-DAHI-CLASSIC-400G', description: 'Thick, creamy, naturally fermented curd.', shelfLifeDays: 6, reorderThreshold: 20, currentQuantity: 45, isLowStock: false, isActive: true },
-  { _id: 6, id: 6, name: 'Mother Dairy Probiotic Dahi (200g)', category: 'curd', unit: 'tub', unitPrice: 30, costPrice: 22, qrCode: 'MD-DAHI-PROBIOTIC-200G', description: 'Probiotic dahi enriched with BB-12 gut-friendly bacteria.', shelfLifeDays: 7, reorderThreshold: 15, currentQuantity: 30, isLowStock: false, isActive: true },
-  { _id: 7, id: 7, name: 'Mother Dairy Authentic Mishti Doi (100g)', category: 'curd', unit: 'cup', unitPrice: 25, costPrice: 18, qrCode: 'MD-DOI-MISHTI-100G', description: 'Traditional caramelized sweet curd in terracotta style cup.', shelfLifeDays: 7, reorderThreshold: 15, currentQuantity: 35, isLowStock: false, isActive: true },
-  { _id: 8, id: 8, name: 'Mother Dairy Malai Paneer (200g)', category: 'paneer', unit: 'packet', unitPrice: 95, costPrice: 75, qrCode: 'MD-PANEER-MALAI-200G', description: 'Ultra-soft malai paneer with rich texture and pure milk goodness.', shelfLifeDays: 15, reorderThreshold: 20, currentQuantity: 65, isLowStock: false, isActive: true },
-  { _id: 9, id: 9, name: 'Mother Dairy Fresh Paneer Block (1kg)', category: 'paneer', unit: 'block', unitPrice: 420, costPrice: 330, qrCode: 'MD-PANEER-1KG', description: 'Bulk restaurant & home size soft malai paneer.', shelfLifeDays: 12, reorderThreshold: 10, currentQuantity: 25, isLowStock: false, isActive: true },
-  { _id: 10, id: 10, name: 'Mother Dairy Pure Cow Ghee (1L Tin)', category: 'ghee', unit: 'tin', unitPrice: 650, costPrice: 510, qrCode: 'MD-GHEE-COW-1L', description: 'Golden, granular and aromatic pure cow ghee made with traditional bilona process.', shelfLifeDays: 270, reorderThreshold: 10, currentQuantity: 35, isLowStock: false, isActive: true },
-  { _id: 11, id: 11, name: 'Mother Dairy Salted Butter (500g)', category: 'butter', unit: 'pack', unitPrice: 275, costPrice: 220, qrCode: 'MD-BUTTER-SALT-500G', description: 'Rich pasteurized cream table butter.', shelfLifeDays: 180, reorderThreshold: 15, currentQuantity: 40, isLowStock: false, isActive: true },
-  { _id: 12, id: 12, name: 'Mother Dairy Masala Chaach (200ml)', category: 'buttermilk', unit: 'pouch', unitPrice: 15, costPrice: 10, qrCode: 'MD-CHAACH-MASALA-200M', description: 'Refreshing spiced buttermilk with roasted jeera & rock salt.', shelfLifeDays: 8, reorderThreshold: 40, currentQuantity: 90, isLowStock: false, isActive: true }
+  { _id: 1, id: 1, name: 'Mother Dairy Full Cream Milk (1L)', category: 'milk', unit: 'litre', unitPrice: 68, costPrice: 54, qrCode: 'MD-MILK-FC-1L', barcode: '8901648001018', description: 'Pasteurized homogenized full cream milk with 6.0% FAT & 9.0% SNF.', shelfLifeDays: 2, reorderThreshold: 25, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 2, id: 2, name: 'Mother Dairy Toned Milk (500ml)', category: 'milk', unit: 'packet', unitPrice: 28, costPrice: 22, qrCode: 'MD-MILK-TONED-500M', barcode: '8901648001025', description: 'Fresh toned milk with 3.0% FAT & 8.5% SNF.', shelfLifeDays: 2, reorderThreshold: 30, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 3, id: 3, name: 'Mother Dairy Live Cow Milk (1L)', category: 'milk', unit: 'litre', unitPrice: 58, costPrice: 46, qrCode: 'MD-MILK-COW-1L', barcode: '8901648001032', description: '100% natural, easily digestible cow milk rich in Calcium.', shelfLifeDays: 2, reorderThreshold: 20, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 4, id: 4, name: 'Fresh Chilled Raw Cow Milk (Bulk)', category: 'raw-milk', unit: 'litre', unitPrice: 48, costPrice: 40, qrCode: 'MD-RAW-COW-BULK', barcode: '8901648001049', description: 'Direct farm milk collected from local dairy farmers for processing.', shelfLifeDays: 1, reorderThreshold: 50, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 5, id: 5, name: 'Mother Dairy Classic Dahi / Curd (400g)', category: 'curd', unit: 'pack', unitPrice: 45, costPrice: 34, qrCode: 'MD-DAHI-CLASSIC-400G', barcode: '8901648002015', description: 'Thick, creamy, naturally fermented curd.', shelfLifeDays: 6, reorderThreshold: 20, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 6, id: 6, name: 'Mother Dairy Probiotic Dahi (200g)', category: 'curd', unit: 'tub', unitPrice: 30, costPrice: 22, qrCode: 'MD-DAHI-PROBIOTIC-200G', barcode: '8901648002022', description: 'Probiotic dahi enriched with BB-12 gut-friendly bacteria.', shelfLifeDays: 7, reorderThreshold: 15, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 7, id: 7, name: 'Mother Dairy Authentic Mishti Doi (100g)', category: 'curd', unit: 'cup', unitPrice: 25, costPrice: 18, qrCode: 'MD-DOI-MISHTI-100G', barcode: '8901648002039', description: 'Traditional caramelized sweet curd in terracotta style cup.', shelfLifeDays: 7, reorderThreshold: 15, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 8, id: 8, name: 'Mother Dairy Malai Paneer (200g)', category: 'paneer', unit: 'packet', unitPrice: 95, costPrice: 75, qrCode: 'MD-PANEER-MALAI-200G', barcode: '8901648003012', description: 'Ultra-soft malai paneer with rich texture and pure milk goodness.', shelfLifeDays: 15, reorderThreshold: 20, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 9, id: 9, name: 'Mother Dairy Fresh Paneer Block (1kg)', category: 'paneer', unit: 'block', unitPrice: 420, costPrice: 330, qrCode: 'MD-PANEER-1KG', barcode: '8901648003029', description: 'Bulk restaurant & home size soft malai paneer.', shelfLifeDays: 12, reorderThreshold: 10, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 10, id: 10, name: 'Mother Dairy Pure Cow Ghee (1L Tin)', category: 'ghee', unit: 'tin', unitPrice: 650, costPrice: 510, qrCode: 'MD-GHEE-COW-1L', barcode: '8901648004019', description: 'Golden, granular and aromatic pure cow ghee made with traditional bilona process.', shelfLifeDays: 270, reorderThreshold: 10, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 11, id: 11, name: 'Mother Dairy Salted Butter (500g)', category: 'butter', unit: 'pack', unitPrice: 275, costPrice: 220, qrCode: 'MD-BUTTER-SALT-500G', barcode: '8901648005016', description: 'Rich pasteurized cream table butter.', shelfLifeDays: 180, reorderThreshold: 15, currentQuantity: 0, isLowStock: false, isActive: true },
+  { _id: 12, id: 12, name: 'Mother Dairy Masala Chaach (200ml)', category: 'buttermilk', unit: 'pouch', unitPrice: 15, costPrice: 10, qrCode: 'MD-CHAACH-MASALA-200M', barcode: '8901648006013', description: 'Refreshing spiced buttermilk with roasted jeera & rock salt.', shelfLifeDays: 8, reorderThreshold: 40, currentQuantity: 0, isLowStock: false, isActive: true }
 ];
 
-let PURCHASES = [
-  { _id: 1, id: 1, productId: PRODUCTS[0], product: PRODUCTS[0], quantity: 100, costPrice: 54, totalAmount: 5400, supplierName: 'Karnal Dairy Cooperative Federation', invoiceNumber: 'INV-2026-0891', batchNumber: 'BCH-MIL-0001', date: '2026-08-25', notes: 'Morning fresh milk tank inflow' },
-  { _id: 2, id: 2, productId: PRODUCTS[1], product: PRODUCTS[1], quantity: 150, costPrice: 22, totalAmount: 3300, supplierName: 'Anand Dairy Procurement Hub', invoiceNumber: 'INV-2026-0892', batchNumber: 'BCH-MIL-0002', date: '2026-08-24', notes: 'Evening procurement delivery' },
-  { _id: 3, id: 3, productId: PRODUCTS[7], product: PRODUCTS[7], quantity: 60, costPrice: 75, totalAmount: 4500, supplierName: 'Mother Dairy Central Processing Unit', invoiceNumber: 'INV-2026-0895', batchNumber: 'BCH-PAN-0003', date: '2026-08-23', notes: 'Vacuum packed fresh malai paneer' },
-  { _id: 4, id: 4, productId: PRODUCTS[9], product: PRODUCTS[9], quantity: 25, costPrice: 510, totalAmount: 12750, supplierName: 'Mother Dairy Ghee Works Pilkhuwa', invoiceNumber: 'INV-2026-0898', batchNumber: 'BCH-GHE-0004', date: '2026-08-22', notes: 'Pure cow ghee dispatch' }
-];
-
-let SALES = [
-  { _id: 1, id: 1, productId: PRODUCTS[0], product: PRODUCTS[0], quantity: 12, sellingPrice: 68, totalAmount: 816, customerName: 'Aarav Sharma (Daily Subscriber)', customerPhone: '+91 98112 34567', paymentMode: 'upi', date: '2026-08-25' },
-  { _id: 2, id: 2, productId: PRODUCTS[7], product: PRODUCTS[7], quantity: 4, sellingPrice: 95, totalAmount: 380, customerName: 'Priya Sweets & Catering', customerPhone: '+91 98765 43210', paymentMode: 'cash', date: '2026-08-25' },
-  { _id: 3, id: 3, productId: PRODUCTS[9], product: PRODUCTS[9], quantity: 2, sellingPrice: 650, totalAmount: 1300, customerName: 'Hotel Royal Residency', customerPhone: '+91 99887 76655', paymentMode: 'card', date: '2026-08-24' }
-];
-
-let FEEDBACKS = [
-  { _id: 1, id: 1, customerName: 'Vikas Gupta', rating: 5, comment: 'Always fresh milk and authentic malai paneer. Fast billing!', date: '2026-08-25' },
-  { _id: 2, id: 2, customerName: 'Sneha Verma', rating: 5, comment: 'Best Mishti Doi and Curd in town. Clean outlet!', date: '2026-08-24' }
-];
+let PURCHASES = [];
+let SALES = [];
+let FEEDBACKS = [];
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -83,47 +69,124 @@ app.get('/api/products', (req, res) => {
   }
   if (search) {
     const s = search.toLowerCase();
-    list = list.filter(p => p.name.toLowerCase().includes(s) || p.qrCode.toLowerCase().includes(s));
+    list = list.filter(p => 
+      p.name.toLowerCase().includes(s) || 
+      p.qrCode.toLowerCase().includes(s) || 
+      (p.barcode && p.barcode.toLowerCase().includes(s))
+    );
   }
   res.status(200).json({ success: true, count: list.length, products: list });
 });
 
+app.get('/api/products/:id', (req, res) => {
+  const { id } = req.params;
+  const upper = (id || '').trim().toUpperCase();
+  const prod = PRODUCTS.find(p => 
+    String(p.id) === id || 
+    String(p._id) === id || 
+    (p.barcode && p.barcode.toUpperCase() === upper) ||
+    p.qrCode.toUpperCase() === upper
+  );
+  if (!prod) {
+    return res.status(404).json({ success: false, message: 'Product not found with this code' });
+  }
+  res.status(200).json({ success: true, product: { ...prod, currentQuantity: prod.currentQuantity || 0 } });
+});
+
 app.post('/api/products', (req, res) => {
-  const newP = { ...req.body, id: PRODUCTS.length + 1, _id: PRODUCTS.length + 1, currentQuantity: 50, isLowStock: false, isActive: true };
+  const newP = { ...req.body, id: PRODUCTS.length + 1, _id: PRODUCTS.length + 1, currentQuantity: Number(req.body.currentQuantity) || 0, isLowStock: false, isActive: true };
   PRODUCTS.unshift(newP);
   res.status(201).json({ success: true, message: 'Product added successfully!', product: newP });
 });
 
 // Stock Routes
 app.get('/api/stock', (req, res) => {
-  const stocks = PRODUCTS.map(p => ({
-    _id: p._id,
-    id: p.id,
-    productId: p,
-    product: p,
-    quantity: p.currentQuantity || 50,
-    reorderThreshold: p.reorderThreshold || 20,
-    status: (p.currentQuantity || 50) <= (p.reorderThreshold || 20) ? 'low' : 'optimal',
-    batches: [
-      {
-        _id: p._id,
-        batchNumber: `BCH-${p.category.slice(0, 3).toUpperCase()}-00${p._id}`,
-        quantity: p.currentQuantity || 50,
-        expiryDate: '2026-08-30',
-        daysLeft: p.shelfLifeDays || 5,
-        status: 'fresh'
-      }
-    ]
-  }));
+  const stocks = PRODUCTS.map(p => {
+    const pBatches = EXPIRY_BATCHES.filter(b => 
+      b.productId?._id == p._id || b.productId?.id == p.id || b.productId == p.id || b.productId == p._id
+    );
+    return {
+      _id: p._id,
+      id: p.id,
+      productId: p,
+      product: p,
+      quantity: Number(p.currentQuantity || 0),
+      reorderThreshold: p.reorderThreshold || 20,
+      status: (p.currentQuantity || 0) <= (p.reorderThreshold || 20) ? 'low' : 'optimal',
+      batches: pBatches
+    };
+  });
 
   const summary = {
     totalProducts: stocks.length,
     totalQuantity: stocks.reduce((sum, s) => sum + s.quantity, 0),
-    lowStockCount: 2,
-    expiringBatchesCount: 1
+    lowStockCount: stocks.filter(s => s.quantity <= s.reorderThreshold).length,
+    expiringBatchesCount: EXPIRY_BATCHES.filter(b => b.status === 'near-expiry' || b.daysLeft <= 3).length
   };
 
   res.status(200).json({ success: true, summary, stocks });
+});
+
+app.post('/api/stock/inward', (req, res) => {
+  const { productId, barcode, quantity, costPrice, expiryDate, batchNumber, supplierName, notes } = req.body;
+  const numQty = Number(quantity) || 1;
+  const cleanCode = (barcode || '').toString().trim().toUpperCase();
+
+  const prod = PRODUCTS.find(p => 
+    (productId && (String(p.id) === String(productId) || String(p._id) === String(productId))) ||
+    (cleanCode && ((p.barcode && p.barcode.toUpperCase() === cleanCode) || p.qrCode.toUpperCase() === cleanCode))
+  );
+
+  if (!prod) {
+    return res.status(404).json({ success: false, message: 'Product not found for barcode: ' + (barcode || productId) });
+  }
+
+  const cost = Number(costPrice) || (prod.costPrice || 30);
+  prod.currentQuantity = Number(prod.currentQuantity || 0) + numQty;
+  prod.isLowStock = prod.currentQuantity <= (prod.reorderThreshold || 20);
+
+  const batch = batchNumber || `BCH-${prod.category.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-5)}`;
+  const calcExpiry = expiryDate || new Date(Date.now() + (prod.shelfLifeDays || 3) * 86400000).toISOString().split('T')[0];
+
+  const purchaseItem = {
+    id: PURCHASES.length + 1,
+    _id: PURCHASES.length + 1,
+    productId: prod._id,
+    product: { ...prod },
+    quantity: numQty,
+    costPrice: cost,
+    totalAmount: Number((numQty * cost).toFixed(2)),
+    supplierName: supplierName || 'Mother Dairy Barcode Inward',
+    invoiceNumber: `BAR-${Date.now().toString().slice(-6)}`,
+    batchNumber: batch,
+    date: new Date().toISOString(),
+    notes: notes || 'Quick Barcode Stock Inward'
+  };
+  PURCHASES.unshift(purchaseItem);
+
+  const expiryBatch = {
+    id: EXPIRY_BATCHES.length + 1,
+    _id: EXPIRY_BATCHES.length + 1,
+    productId: prod,
+    product: prod,
+    batchNumber: batch,
+    manufactureDate: new Date().toISOString().split('T')[0],
+    expiryDate: calcExpiry,
+    quantity: numQty,
+    status: 'fresh',
+    daysLeft: prod.shelfLifeDays || 5,
+    notes: notes || 'Barcode Inward'
+  };
+  EXPIRY_BATCHES.unshift(expiryBatch);
+
+  res.status(201).json({
+    success: true,
+    message: `Successfully added ${numQty} ${prod.unit} of "${prod.name}" to stock!`,
+    currentQuantity: prod.currentQuantity,
+    product: { ...prod },
+    batch: { batchNumber: batch, expiryDate: calcExpiry },
+    purchaseId: purchaseItem.id
+  });
 });
 
 // Purchases Routes
@@ -252,8 +315,8 @@ function computeDynamicDashboardStats() {
   const todaySales = SALES.filter(s => (s.date && String(s.date).startsWith(todayStr)));
   const todayPurchases = PURCHASES.filter(p => (p.date && String(p.date).startsWith(todayStr)));
 
-  const effectiveSales = todaySales.length > 0 ? todaySales : SALES.slice(0, 5);
-  const effectivePurchases = todayPurchases.length > 0 ? todayPurchases : PURCHASES.slice(0, 3);
+  const effectiveSales = todaySales;
+  const effectivePurchases = todayPurchases;
 
   const todaySalesTotal = effectiveSales.reduce((sum, s) => sum + Number(s.totalAmount || 0), 0);
   const todaySalesQty = effectiveSales.reduce((sum, s) => sum + Number(s.quantity || 0), 0);
@@ -275,7 +338,7 @@ function computeDynamicDashboardStats() {
     totalRevenue: Math.round(totalRevenueAll),
     totalPurchasesCost: Math.round(totalPurchasesCostAll),
     grossProfit: Math.round(grossProfitAll),
-    profitMargin: totalRevenueAll > 0 ? Number(((grossProfitAll / totalRevenueAll) * 100).toFixed(1)) : 18.0,
+    profitMargin: totalRevenueAll > 0 ? Number(((grossProfitAll / totalRevenueAll) * 100).toFixed(1)) : 0,
     totalProducts: PRODUCTS.length,
     totalProductsCount: PRODUCTS.length,
     totalStockUnits,
@@ -319,43 +382,45 @@ app.get('/api/reports/dashboard', (req, res) => {
 });
 
 app.get('/api/reports/analytics', (req, res) => {
+  const totalSalesAmount = SALES.reduce((sum, s) => sum + Number(s.totalAmount || 0), 0);
+  const totalSalesQuantity = SALES.reduce((sum, s) => sum + Number(s.quantity || 0), 0);
+  const totalPurchasesAmount = PURCHASES.reduce((sum, p) => sum + Number(p.totalAmount || 0), 0);
+  const totalPurchasesQuantity = PURCHASES.reduce((sum, p) => sum + Number(p.quantity || 0), 0);
+  const totalCOGS = SALES.reduce((sum, s) => sum + ((Number(s.costPriceSnapshot) || Number(s.product?.costPrice) || 30) * Number(s.quantity || 0)), 0);
+  const grossProfit = totalSalesAmount - totalCOGS;
+  const netProfit = grossProfit;
+  const profitMarginPct = totalSalesAmount > 0 ? Number(((grossProfit / totalSalesAmount) * 100).toFixed(1)) : 0;
+
+  const salesByProduct = {};
+  SALES.forEach(s => {
+    const pName = s.product?.name || s.productName || 'Product';
+    const pId = s.productId?.id || s.productId || s.product?.id || 1;
+    const cat = s.product?.category || s.category || 'dairy';
+    if (!salesByProduct[pId]) {
+      salesByProduct[pId] = { productId: pId, name: pName, category: cat, quantitySold: 0, totalRevenue: 0 };
+    }
+    salesByProduct[pId].quantitySold += Number(s.quantity || 0);
+    salesByProduct[pId].totalRevenue += Number(s.totalAmount || 0);
+  });
+  const topSelling = Object.values(salesByProduct).sort((a, b) => b.quantitySold - a.quantitySold).slice(0, 5);
+
   res.status(200).json({
     success: true,
     summary: {
-      totalSalesAmount: 546980,
-      totalSalesQuantity: 2450,
-      totalPurchasesAmount: 433750,
-      totalPurchasesQuantity: 3200,
-      totalCOGS: 412000,
-      grossProfit: 134980,
-      batchWastageLoss: 1450,
-      totalWastageUnits: 15,
-      netProfit: 113230,
-      profitMarginPct: 20.7
+      totalSalesAmount: Math.round(totalSalesAmount),
+      totalSalesQuantity,
+      totalPurchasesAmount: Math.round(totalPurchasesAmount),
+      totalPurchasesQuantity,
+      totalCOGS: Math.round(totalCOGS),
+      grossProfit: Math.round(grossProfit),
+      batchWastageLoss: 0,
+      totalWastageUnits: 0,
+      netProfit: Math.round(netProfit),
+      profitMarginPct
     },
-    timeSeries: [
-      { date: '2026-08-19', sales: 68400, purchases: 52000 },
-      { date: '2026-08-20', sales: 74200, purchases: 58000 },
-      { date: '2026-08-21', sales: 81000, purchases: 61000 },
-      { date: '2026-08-22', sales: 69500, purchases: 54000 },
-      { date: '2026-08-23', sales: 92400, purchases: 72000 },
-      { date: '2026-08-24', sales: 88500, purchases: 67000 },
-      { date: '2026-08-25', sales: 72980, purchases: 49750 }
-    ],
-    categoryBreakdown: [
-      { category: 'Milk', amount: 245000 },
-      { category: 'Paneer', amount: 115000 },
-      { category: 'Ghee & Butter', amount: 98000 },
-      { category: 'Curd & Chaach', amount: 62000 },
-      { category: 'Sweets', amount: 26980 }
-    ],
-    topSelling: [
-      { productId: 1, name: 'Mother Dairy Full Cream Milk (1L)', category: 'milk', quantitySold: 980, totalRevenue: 66640 },
-      { productId: 2, name: 'Mother Dairy Toned Milk (500ml)', category: 'milk', quantitySold: 850, totalRevenue: 23800 },
-      { productId: 8, name: 'Mother Dairy Malai Paneer (200g)', category: 'paneer', quantitySold: 420, totalRevenue: 39900 },
-      { productId: 10, name: 'Mother Dairy Pure Cow Ghee (1L Tin)', category: 'ghee', quantitySold: 120, totalRevenue: 78000 },
-      { productId: 5, name: 'Mother Dairy Classic Dahi / Curd (400g)', category: 'curd', quantitySold: 340, totalRevenue: 15300 }
-    ]
+    timeSeries: [],
+    categoryBreakdown: [],
+    topSelling
   });
 });
 
@@ -363,12 +428,27 @@ app.get('/api/reports/export-csv', (req, res) => {
   const type = req.query.type || 'sales';
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename=mother_dairy_${type}_report.csv`);
-  res.status(200).send('Date,Item,Category,Quantity,Amount\n2026-08-25,Full Cream Milk 1L,milk,100,6800\n2026-08-24,Toned Milk 500ml,milk,150,4200\n2026-08-23,Malai Paneer 200g,paneer,60,5700\n2026-08-22,Pure Cow Ghee 1L,ghee,25,16250');
+  if (type === 'purchases') {
+    let csv = 'Date,Invoice,Supplier,Product,Quantity,CostPrice,TotalAmount\n';
+    PURCHASES.forEach(p => {
+      csv += `${(p.date || '').slice(0, 10)},${p.invoiceNumber || ''},"${p.supplierName || ''}","${p.product?.name || ''}",${p.quantity || 0},${p.costPrice || 0},${p.totalAmount || 0}\n`;
+    });
+    return res.status(200).send(csv);
+  } else {
+    let csv = 'Date,Receipt,Customer,Product,Quantity,UnitPrice,TotalAmount\n';
+    SALES.forEach(s => {
+      csv += `${(s.date || '').slice(0, 10)},${s.receiptNumber || ''},"${s.customerName || 'Walk-in'}","${s.product?.name || ''}",${s.quantity || 0},${s.unitPrice || 0},${s.totalAmount || 0}\n`;
+    });
+    return res.status(200).send(csv);
+  }
 });
 
 // Reviews & Feedback
 app.get('/api/feedback', (req, res) => {
-  res.status(200).json({ success: true, count: FEEDBACKS.length, averageRating: 4.9, feedbacks: FEEDBACKS });
+  const avg = FEEDBACKS.length > 0 
+    ? Number((FEEDBACKS.reduce((sum, f) => sum + Number(f.rating || 5), 0) / FEEDBACKS.length).toFixed(1)) 
+    : 5.0;
+  res.status(200).json({ success: true, count: FEEDBACKS.length, averageRating: avg, feedbacks: FEEDBACKS });
 });
 
 app.post('/api/feedback', (req, res) => {
@@ -377,73 +457,7 @@ app.post('/api/feedback', (req, res) => {
   res.status(201).json({ success: true, message: 'Review submitted successfully!', feedback: fb });
 });
 
-let EXPIRY_BATCHES = [
-  {
-    _id: 1,
-    id: 1,
-    productId: PRODUCTS[0],
-    product: PRODUCTS[0],
-    batchNumber: 'BCH-MIL-00891',
-    manufactureDate: '2026-08-24',
-    expiryDate: '2026-08-26',
-    quantity: 45,
-    status: 'near-expiry',
-    daysLeft: 1,
-    notes: 'Morning pasteurized dispatch'
-  },
-  {
-    _id: 2,
-    id: 2,
-    productId: PRODUCTS[1],
-    product: PRODUCTS[1],
-    batchNumber: 'BCH-MIL-00892',
-    manufactureDate: '2026-08-25',
-    expiryDate: '2026-08-27',
-    quantity: 60,
-    status: 'fresh',
-    daysLeft: 2,
-    notes: 'Fresh toned milk batch'
-  },
-  {
-    _id: 3,
-    id: 3,
-    productId: PRODUCTS[4],
-    product: PRODUCTS[4],
-    batchNumber: 'BCH-CUR-00893',
-    manufactureDate: '2026-08-22',
-    expiryDate: '2026-08-28',
-    quantity: 35,
-    status: 'fresh',
-    daysLeft: 3,
-    notes: 'Natural Dahi batch'
-  },
-  {
-    _id: 4,
-    id: 4,
-    productId: PRODUCTS[7],
-    product: PRODUCTS[7],
-    batchNumber: 'BCH-PAN-00894',
-    manufactureDate: '2026-08-15',
-    expiryDate: '2026-08-30',
-    quantity: 25,
-    status: 'fresh',
-    daysLeft: 5,
-    notes: 'Vacuum packed malai paneer'
-  },
-  {
-    _id: 5,
-    id: 5,
-    productId: PRODUCTS[10],
-    product: PRODUCTS[10],
-    batchNumber: 'BCH-BUT-00870',
-    manufactureDate: '2026-08-10',
-    expiryDate: '2026-08-18',
-    quantity: 10,
-    status: 'expired',
-    daysLeft: -7,
-    notes: 'Marked for return/discard'
-  }
-];
+let EXPIRY_BATCHES = [];
 
 // Expiry Batches Routes
 app.get('/api/expiry', (req, res) => {
@@ -513,9 +527,7 @@ app.get('/api/reports/dashboard-stats', (req, res) => {
 });
 
 // Production & Batches
-let PRODUCTIONS = [
-  { _id: 1, id: 1, batchNumber: 'PRD-DAHI-001', rawMaterialName: 'Raw Cow Milk', rawMaterialUsed: 50, outputProductName: 'Mother Dairy Classic Dahi (400g)', outputQuantity: 45, date: '2026-08-25', status: 'completed' }
-];
+let PRODUCTIONS = [];
 
 app.get('/api/production', (req, res) => {
   res.status(200).json({ success: true, count: PRODUCTIONS.length, batches: PRODUCTIONS });

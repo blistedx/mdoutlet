@@ -126,10 +126,15 @@ const Sales = () => {
     });
   };
 
-  // QR Code Auto-fill Handler
+  // Barcode / QR Code Auto-fill Handler
   const handleQrMatched = (scannedCode) => {
+    const upper = (scannedCode || '').trim().toUpperCase();
     const matched = products.find(
-      (p) => p.qrCode.toUpperCase() === scannedCode.toUpperCase() || p._id === scannedCode
+      (p) => 
+        (p.barcode && p.barcode.toUpperCase() === upper) ||
+        (p.qrCode && p.qrCode.toUpperCase() === upper) || 
+        String(p._id) === scannedCode ||
+        String(p.id) === scannedCode
     );
 
     if (matched) {
@@ -137,7 +142,7 @@ const Sales = () => {
       setIsModalOpen(true);
       addToast(`Auto-filled: ${matched.name} (Stock: ${matched.currentQuantity})`, 'success');
     } else {
-      addToast(`No product found matching QR "${scannedCode}".`, 'warning');
+      addToast(`No product found matching Barcode "${scannedCode}".`, 'warning');
     }
   };
 
@@ -513,10 +518,11 @@ const Sales = () => {
         </form>
       </Modal>
 
-      {/* 5. QR Code Camera Scanner Modal */}
+      {/* 5. Barcode & QR Code Camera Scanner Modal */}
       <QrScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
+        mode="code-only"
         onScanSuccess={handleQrMatched}
       />
     </div>

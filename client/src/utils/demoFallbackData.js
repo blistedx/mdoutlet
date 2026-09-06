@@ -8,11 +8,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 68,
     costPrice: 54,
     qrCode: 'MD-MILK-FC-1L',
+    barcode: '8901648001018',
     description: 'Pasteurized homogenized full cream milk with 6.0% FAT & 9.0% SNF.',
     shelfLifeDays: 2,
     reorderThreshold: 25,
-    quantity: 80,
-    currentStock: 80
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 2,
@@ -23,11 +24,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 28,
     costPrice: 22,
     qrCode: 'MD-MILK-TONED-500M',
+    barcode: '8901648001025',
     description: 'Fresh toned milk with 3.0% FAT & 8.5% SNF.',
     shelfLifeDays: 2,
     reorderThreshold: 30,
-    quantity: 120,
-    currentStock: 120
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 3,
@@ -38,11 +40,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 58,
     costPrice: 46,
     qrCode: 'MD-MILK-COW-1L',
+    barcode: '8901648001032',
     description: '100% natural, easily digestible cow milk rich in Calcium.',
     shelfLifeDays: 2,
     reorderThreshold: 20,
-    quantity: 60,
-    currentStock: 60
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 4,
@@ -53,11 +56,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 48,
     costPrice: 40,
     qrCode: 'MD-RAW-COW-BULK',
+    barcode: '8901648001049',
     description: 'Direct farm milk collected from local dairy farmers for processing.',
     shelfLifeDays: 1,
     reorderThreshold: 50,
-    quantity: 200,
-    currentStock: 200
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 5,
@@ -68,11 +72,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 45,
     costPrice: 34,
     qrCode: 'MD-DAHI-CLASSIC-400G',
+    barcode: '8901648002015',
     description: 'Thick, creamy, naturally fermented curd.',
     shelfLifeDays: 6,
     reorderThreshold: 20,
-    quantity: 45,
-    currentStock: 45
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 6,
@@ -83,11 +88,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 95,
     costPrice: 75,
     qrCode: 'MD-PANEER-MALAI-200G',
+    barcode: '8901648003012',
     description: 'Ultra-soft malai paneer with rich texture and pure milk goodness.',
     shelfLifeDays: 15,
     reorderThreshold: 20,
-    quantity: 65,
-    currentStock: 65
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 7,
@@ -98,11 +104,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 650,
     costPrice: 510,
     qrCode: 'MD-GHEE-COW-1L',
+    barcode: '8901648004019',
     description: 'Golden, granular and aromatic pure cow ghee made with traditional bilona process.',
     shelfLifeDays: 270,
     reorderThreshold: 10,
-    quantity: 35,
-    currentStock: 35
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 8,
@@ -113,11 +120,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 275,
     costPrice: 220,
     qrCode: 'MD-BUTTER-SALT-500G',
+    barcode: '8901648005016',
     description: 'Rich pasteurized cream table butter.',
     shelfLifeDays: 180,
     reorderThreshold: 15,
-    quantity: 40,
-    currentStock: 40
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 9,
@@ -128,11 +136,12 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 420,
     costPrice: 330,
     qrCode: 'MD-PANEER-1KG',
+    barcode: '8901648003029',
     description: 'Bulk restaurant & home size soft malai paneer.',
     shelfLifeDays: 12,
     reorderThreshold: 10,
-    quantity: 25,
-    currentStock: 25
+    quantity: 0,
+    currentStock: 0
   },
   {
     _id: 10,
@@ -143,283 +152,78 @@ export const FALLBACK_PRODUCTS = [
     unitPrice: 15,
     costPrice: 10,
     qrCode: 'MD-CHAACH-MASALA-200M',
+    barcode: '8901648006013',
     description: 'Refreshing spiced buttermilk with roasted jeera & rock salt.',
     shelfLifeDays: 8,
     reorderThreshold: 40,
-    quantity: 90,
-    currentStock: 90
+    quantity: 0,
+    currentStock: 0
   }
 ];
 
-export const FALLBACK_PURCHASES = [
-  {
-    _id: 1,
-    id: 1,
-    productId: FALLBACK_PRODUCTS[0],
-    product: FALLBACK_PRODUCTS[0],
-    quantity: 100,
-    costPrice: 54,
-    totalAmount: 5400,
-    supplierName: 'Karnal Dairy Cooperative Federation',
-    invoiceNumber: 'INV-2026-0891',
-    batchNumber: 'BCH-MIL-0001',
-    date: new Date().toISOString().split('T')[0],
-    notes: 'Morning fresh milk tank inflow'
-  },
-  {
-    _id: 2,
-    id: 2,
-    productId: FALLBACK_PRODUCTS[1],
-    product: FALLBACK_PRODUCTS[1],
-    quantity: 150,
-    costPrice: 22,
-    totalAmount: 3300,
-    supplierName: 'Anand Dairy Procurement Hub',
-    invoiceNumber: 'INV-2026-0892',
-    batchNumber: 'BCH-MIL-0002',
-    date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-    notes: 'Evening procurement delivery'
-  },
-  {
-    _id: 3,
-    id: 3,
-    productId: FALLBACK_PRODUCTS[5],
-    product: FALLBACK_PRODUCTS[5],
-    quantity: 60,
-    costPrice: 75,
-    totalAmount: 4500,
-    supplierName: 'Mother Dairy Central Processing Unit',
-    invoiceNumber: 'INV-2026-0895',
-    batchNumber: 'BCH-PAN-0003',
-    date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-    notes: 'Vacuum packed fresh malai paneer'
-  },
-  {
-    _id: 4,
-    id: 4,
-    productId: FALLBACK_PRODUCTS[6],
-    product: FALLBACK_PRODUCTS[6],
-    quantity: 25,
-    costPrice: 510,
-    totalAmount: 12750,
-    supplierName: 'Mother Dairy Ghee Works Pilkhuwa',
-    invoiceNumber: 'INV-2026-0898',
-    batchNumber: 'BCH-GHE-0004',
-    date: new Date(Date.now() - 259200000).toISOString().split('T')[0],
-    notes: 'Pure cow ghee dispatch'
-  }
-];
+export const FALLBACK_PURCHASES = [];
 
-export const FALLBACK_SALES = [
-  {
-    _id: 1,
-    id: 1,
-    productId: FALLBACK_PRODUCTS[0],
-    product: FALLBACK_PRODUCTS[0],
-    quantity: 12,
-    sellingPrice: 68,
-    totalAmount: 816,
-    customerName: 'Aarav Sharma (Daily Milk Subscriber)',
-    customerPhone: '+91 98112 34567',
-    paymentMode: 'upi',
-    date: new Date().toISOString().split('T')[0]
-  },
-  {
-    _id: 2,
-    id: 2,
-    productId: FALLBACK_PRODUCTS[5],
-    product: FALLBACK_PRODUCTS[5],
-    quantity: 4,
-    sellingPrice: 95,
-    totalAmount: 380,
-    customerName: 'Priya Sweets & Catering',
-    customerPhone: '+91 98765 43210',
-    paymentMode: 'cash',
-    date: new Date().toISOString().split('T')[0]
-  },
-  {
-    _id: 3,
-    id: 3,
-    productId: FALLBACK_PRODUCTS[6],
-    product: FALLBACK_PRODUCTS[6],
-    quantity: 2,
-    sellingPrice: 650,
-    totalAmount: 1300,
-    customerName: 'Hotel Royal Residency',
-    customerPhone: '+91 99887 76655',
-    paymentMode: 'card',
-    date: new Date(Date.now() - 86400000).toISOString().split('T')[0]
-  }
-];
+export const FALLBACK_SALES = [];
 
 export const FALLBACK_STOCKS = FALLBACK_PRODUCTS.map((p, idx) => ({
   _id: p._id,
   id: p.id,
   productId: p,
   product: p,
-  quantity: p.quantity,
+  quantity: 0,
   reorderThreshold: p.reorderThreshold,
-  status: p.quantity <= p.reorderThreshold ? 'low' : 'optimal',
-  batches: [
-    {
-      _id: idx + 1,
-      batchNumber: `BCH-${p.category.slice(0, 3).toUpperCase()}-00${idx + 1}`,
-      quantity: p.quantity,
-      expiryDate: new Date(Date.now() + p.shelfLifeDays * 86400000).toISOString().split('T')[0],
-      daysLeft: p.shelfLifeDays,
-      status: 'fresh'
-    }
-  ]
+  status: 'optimal',
+  batches: []
 }));
 
 export const FALLBACK_DASHBOARD_KPI = {
   kpis: {
-    totalRevenue: 528698,
-    totalPurchasesCost: 433752,
-    grossProfit: 94946,
-    profitMargin: 18.0,
-    totalStockUnits: 1256,
-    totalProductsCount: 28,
-    lowStockCount: 3,
-    expiringBatchesCount: 2,
-    todaySales: 24850,
-    todayPurchases: 18600
+    totalRevenue: 0,
+    totalPurchasesCost: 0,
+    grossProfit: 0,
+    profitMargin: 0,
+    totalStockUnits: 0,
+    totalProductsCount: FALLBACK_PRODUCTS.length,
+    lowStockCount: 0,
+    expiringBatchesCount: 0,
+    todaySales: 0,
+    todayPurchases: 0
   },
-  salesTrend: [
-    { date: '2026-08-19', sales: 68400, purchases: 52000 },
-    { date: '2026-08-20', sales: 74200, purchases: 58000 },
-    { date: '2026-08-21', sales: 81000, purchases: 61000 },
-    { date: '2026-08-22', sales: 69500, purchases: 54000 },
-    { date: '2026-08-23', sales: 92400, purchases: 72000 },
-    { date: '2026-08-24', sales: 88500, purchases: 67000 },
-    { date: '2026-08-25', sales: 54698, purchases: 43752 }
-  ],
-  categoryBreakdown: [
-    { name: 'Milk', value: 45 },
-    { name: 'Paneer', value: 20 },
-    { name: 'Ghee & Butter', value: 18 },
-    { name: 'Curd & Chaach', value: 12 },
-    { name: 'Sweets & Ice Cream', value: 5 }
-  ],
-  recentPurchases: FALLBACK_PURCHASES,
-  recentSales: FALLBACK_SALES
+  salesTrend: [],
+  categoryBreakdown: [],
+  recentPurchases: [],
+  recentSales: []
 };
 
-export const FALLBACK_EXPIRY_BATCHES = [
-  {
-    _id: 1,
-    id: 1,
-    productId: FALLBACK_PRODUCTS[0],
-    product: FALLBACK_PRODUCTS[0],
-    batchNumber: 'BCH-MIL-00891',
-    manufactureDate: '2026-08-24',
-    expiryDate: '2026-08-26',
-    quantity: 45,
-    status: 'near-expiry',
-    daysLeft: 1,
-    notes: 'Morning pasteurized dispatch'
-  },
-  {
-    _id: 2,
-    id: 2,
-    productId: FALLBACK_PRODUCTS[1],
-    product: FALLBACK_PRODUCTS[1],
-    batchNumber: 'BCH-MIL-00892',
-    manufactureDate: '2026-08-25',
-    expiryDate: '2026-08-27',
-    quantity: 60,
-    status: 'fresh',
-    daysLeft: 2,
-    notes: 'Fresh toned milk batch'
-  },
-  {
-    _id: 3,
-    id: 3,
-    productId: FALLBACK_PRODUCTS[4],
-    product: FALLBACK_PRODUCTS[4],
-    batchNumber: 'BCH-CUR-00893',
-    manufactureDate: '2026-08-22',
-    expiryDate: '2026-08-28',
-    quantity: 35,
-    status: 'fresh',
-    daysLeft: 3,
-    notes: 'Natural Dahi batch'
-  },
-  {
-    _id: 4,
-    id: 4,
-    productId: FALLBACK_PRODUCTS[5],
-    product: FALLBACK_PRODUCTS[5],
-    batchNumber: 'BCH-PAN-00894',
-    manufactureDate: '2026-08-15',
-    expiryDate: '2026-08-30',
-    quantity: 25,
-    status: 'fresh',
-    daysLeft: 5,
-    notes: 'Vacuum packed malai paneer'
-  },
-  {
-    _id: 5,
-    id: 5,
-    productId: FALLBACK_PRODUCTS[9],
-    product: FALLBACK_PRODUCTS[9],
-    batchNumber: 'BCH-BUT-00870',
-    manufactureDate: '2026-08-10',
-    expiryDate: '2026-08-18',
-    quantity: 10,
-    status: 'expired',
-    daysLeft: -7,
-    notes: 'Marked for return/discard'
-  }
-];
+export const FALLBACK_EXPIRY_BATCHES = [];
 
 export const FALLBACK_EXPIRY_SUMMARY = {
-  totalBatches: 5,
-  freshCount: 3,
-  nearExpiryCount: 1,
-  nearExpiryRiskUnits: 45,
-  expiredCount: 1,
-  expiredWastageUnits: 10,
-  discardedCount: 1
+  totalBatches: 0,
+  freshCount: 0,
+  nearExpiryCount: 0,
+  nearExpiryRiskUnits: 0,
+  expiredCount: 0,
+  expiredWastageUnits: 0,
+  discardedCount: 0
 };
 
 export const FALLBACK_ANALYTICS_REPORT = {
   success: true,
   summary: {
-    totalSalesAmount: 546980,
-    totalSalesQuantity: 2450,
-    totalPurchasesAmount: 433750,
-    totalPurchasesQuantity: 3200,
-    totalCOGS: 412000,
-    grossProfit: 134980,
-    batchWastageLoss: 1450,
-    totalWastageUnits: 15,
-    netProfit: 113230,
-    profitMarginPct: 20.7
+    totalSalesAmount: 0,
+    totalSalesQuantity: 0,
+    totalPurchasesAmount: 0,
+    totalPurchasesQuantity: 0,
+    totalCOGS: 0,
+    grossProfit: 0,
+    batchWastageLoss: 0,
+    totalWastageUnits: 0,
+    netProfit: 0,
+    profitMarginPct: 0
   },
-  timeSeries: [
-    { date: '2026-08-19', sales: 68400, purchases: 52000 },
-    { date: '2026-08-20', sales: 74200, purchases: 58000 },
-    { date: '2026-08-21', sales: 81000, purchases: 61000 },
-    { date: '2026-08-22', sales: 69500, purchases: 54000 },
-    { date: '2026-08-23', sales: 92400, purchases: 72000 },
-    { date: '2026-08-24', sales: 88500, purchases: 67000 },
-    { date: '2026-08-25', sales: 72980, purchases: 49750 }
-  ],
-  categoryBreakdown: [
-    { category: 'Milk', amount: 245000 },
-    { category: 'Paneer', amount: 115000 },
-    { category: 'Ghee & Butter', amount: 98000 },
-    { category: 'Curd & Chaach', amount: 62000 },
-    { category: 'Sweets', amount: 26980 }
-  ],
-  topSelling: [
-    { productId: 1, name: 'Mother Dairy Full Cream Milk (1L)', category: 'milk', quantitySold: 980, totalRevenue: 66640 },
-    { productId: 2, name: 'Mother Dairy Toned Milk (500ml)', category: 'milk', quantitySold: 850, totalRevenue: 23800 },
-    { productId: 8, name: 'Mother Dairy Malai Paneer (200g)', category: 'paneer', quantitySold: 420, totalRevenue: 39900 },
-    { productId: 10, name: 'Mother Dairy Pure Cow Ghee (1L Tin)', category: 'ghee', quantitySold: 120, totalRevenue: 78000 },
-    { productId: 5, name: 'Mother Dairy Classic Dahi / Curd (400g)', category: 'curd', quantitySold: 340, totalRevenue: 15300 }
-  ]
+  timeSeries: [],
+  categoryBreakdown: [],
+  topSelling: []
 };
 
 

@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Badge from '../components/common/Badge';
 import Modal from '../components/common/Modal';
+import QrScannerModal from '../components/common/QrScannerModal';
 import { 
   Boxes, 
   Search, 
@@ -19,7 +20,8 @@ import {
   Filter, 
   TrendingDown, 
   PackageCheck,
-  QrCode
+  QrCode,
+  ScanBarcode
 } from 'lucide-react';
 import { DAIRY_CATEGORIES, getCategoryMeta } from '../utils/categories';
 import { FALLBACK_STOCKS } from '../utils/demoFallbackData';
@@ -40,9 +42,17 @@ const StockView = () => {
   const [selectedStockForThreshold, setSelectedStockForThreshold] = useState(null);
   const [newThreshold, setNewThreshold] = useState(20);
   const [savingThreshold, setSavingThreshold] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   useEffect(() => {
     fetchStockLevels();
+
+    const handleStockUpdated = () => {
+      fetchStockLevels();
+    };
+
+    window.addEventListener('stock-updated', handleStockUpdated);
+    return () => window.removeEventListener('stock-updated', handleStockUpdated);
   }, [lowStockFilter]);
 
   const fetchStockLevels = async () => {
@@ -133,6 +143,15 @@ const StockView = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsScannerOpen(true)}
+            className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-black shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 border border-emerald-600/40"
+            title="Scan barcode to auto-fill price, expiry and add quantity"
+          >
+            <ScanBarcode className="w-4 h-4 text-emerald-300" />
+            <span>+ Barcode Scan Inward</span>
+          </button>
+
           <Link
             to="/purchases"
             className="px-4 py-2 bg-[#0B4F9C] hover:bg-[#083D7A] text-white rounded-xl text-xs font-bold shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
@@ -411,6 +430,16 @@ const StockView = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Barcode Scanner & Quick Stock Inward Modal */}
+      <QrScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        mode="inward"
+        onStockAdded={() => {
+          fetchStockLevels();
+        }}
+      />
     </div>
   );
 };

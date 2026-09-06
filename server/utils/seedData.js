@@ -11,6 +11,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 68,
     costPrice: 54,
     qrCode: 'MD-MILK-FC-1L',
+    barcode: '8901648001018',
     description: 'Pasteurized homogenized full cream milk with 6.0% FAT & 9.0% SNF.',
     shelfLifeDays: 2,
     reorderThreshold: 25,
@@ -23,6 +24,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 28,
     costPrice: 22,
     qrCode: 'MD-MILK-TONED-500M',
+    barcode: '8901648001025',
     description: 'Fresh toned milk with 3.0% FAT & 8.5% SNF.',
     shelfLifeDays: 2,
     reorderThreshold: 30,
@@ -35,6 +37,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 58,
     costPrice: 46,
     qrCode: 'MD-MILK-COW-1L',
+    barcode: '8901648001032',
     description: '100% natural, easily digestible cow milk rich in Calcium.',
     shelfLifeDays: 2,
     reorderThreshold: 20,
@@ -47,6 +50,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 48,
     costPrice: 40,
     qrCode: 'MD-RAW-COW-BULK',
+    barcode: '8901648001049',
     description: 'Direct farm milk collected from local dairy farmers for processing.',
     shelfLifeDays: 1,
     reorderThreshold: 50,
@@ -59,6 +63,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 45,
     costPrice: 34,
     qrCode: 'MD-DAHI-CLASSIC-400G',
+    barcode: '8901648002015',
     description: 'Thick, creamy, naturally fermented curd.',
     shelfLifeDays: 6,
     reorderThreshold: 20,
@@ -71,6 +76,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 30,
     costPrice: 22,
     qrCode: 'MD-DAHI-PROBIOTIC-200G',
+    barcode: '8901648002022',
     description: 'Probiotic dahi enriched with BB-12 gut-friendly bacteria.',
     shelfLifeDays: 7,
     reorderThreshold: 15,
@@ -83,6 +89,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 25,
     costPrice: 18,
     qrCode: 'MD-DOI-MISHTI-100G',
+    barcode: '8901648002039',
     description: 'Traditional caramelized sweet curd in terracotta style cup.',
     shelfLifeDays: 7,
     reorderThreshold: 15,
@@ -95,6 +102,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 95,
     costPrice: 75,
     qrCode: 'MD-PANEER-MALAI-200G',
+    barcode: '8901648003012',
     description: 'Ultra-soft malai paneer with rich texture and pure milk goodness.',
     shelfLifeDays: 15,
     reorderThreshold: 20,
@@ -107,6 +115,7 @@ export const DEMO_PRODUCTS = [
     unitPrice: 105,
     costPrice: 82,
     qrCode: 'MD-PANEER-LOWFAT-200G',
+    barcode: '8901648003029',
     description: 'High protein, low cholesterol diet paneer.',
     shelfLifeDays: 15,
     reorderThreshold: 10,
@@ -635,12 +644,18 @@ export const seedDemoProducts = async () => {
           unitPrice: item.unitPrice,
           costPrice: item.costPrice,
           qrCode: item.qrCode,
+          barcode: item.barcode,
           description: item.description,
           shelfLifeDays: item.shelfLifeDays,
           reorderThreshold: item.reorderThreshold,
           isActive: true
         }
       });
+
+      if (!product.barcode && item.barcode) {
+        product.barcode = item.barcode;
+        await product.save();
+      }
 
       // Initialize or update stock
       let stock = await Stock.findOne({ where: { productId: product.id } });
@@ -690,19 +705,20 @@ export const seedDemoProducts = async () => {
 
 export const clearAllDemoData = async () => {
   try {
-    console.log('[Clean] Clearing tables...');
+    console.log('[Clean] Clearing demo transactions, batches, and resetting stock...');
     await ProductionOutput.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await Production.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await ExpiryBatch.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await Sale.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await Purchase.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
-    await Stock.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
-    await Product.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await Feedback.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
     await AuditLog.destroy({ where: {}, truncate: { cascade: true } }).catch(() => {});
 
+    // Reset stock to 0
+    await Stock.update({ currentQuantity: 0 }, { where: {} }).catch(() => {});
+
     await initializeDefaultUsers();
-    console.log('[Clean] Database is clean with active admin & staff credentials.');
+    console.log('[Clean] Database is clean with 0 stock and no fake demo data.');
     return { success: true, message: 'All demo data removed successfully.' };
   } catch (error) {
     console.error('[Clean Error]:', error.message);

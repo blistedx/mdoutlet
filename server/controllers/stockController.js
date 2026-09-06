@@ -1,4 +1,6 @@
-import { Stock, Product } from '../models/index.js';
+import { Op } from 'sequelize';
+import { Stock, Product, Purchase, ExpiryBatch } from '../models/index.js';
+import { addStock } from '../services/stockSyncService.js';
 import { logAudit } from '../middleware/auditLogger.js';
 
 // @route   GET /api/stock
@@ -103,5 +105,133 @@ export const updateReorderThreshold = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @route   POST /api/stock/inward
+// @desc    Fast Barcode Inward: Auto-fills price, expiry, creates purchase & batch, adds to stock
+// @access  Private
+export const quickStockInward = async (req, res) => {
+  try {
+    const {
+      productId,
+      barcode,
+      quantity,
+      costPrice,
+      expiryDate,
+      batchNumber,
+      supplierName,
+      invoiceNumber,
+      notes
+    } = req.body;
+
+    const numQty = Number(quantity);
+    if (!numQty || numQty <= 0) {
+      return res.status(400).json({ success: false, message: 'Valid positive quantity is required' });
+    }
+
+    let product = null;
+
+    if (productId) {
+      product = await Product.findByPk(productId);
+    }
+
+    if (!product && barcode) {
+      const cleanCode = barcode.toString().trim();
+      product = await Product.findOne({
+        where: {
+          [Op.or]: [
+            { barcode: cleanCode },
+            { qrCode: cleanCode },
+            { id: isNaN(cleanCode) ? -1 : Number(cleanCode) }
+          ]
+        }
+      });
+    }
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: `Product not found for barcode/identifier "${barcode || productId}"`
+      });
+    }
+
+    const numCost = costPrice !== undefined && costPrice !== ''
+      ? Number(costPrice)
+      : Number(product.costPrice || Math.round(Number(product.unitPrice || 0) * 0.8));
+
+    const totalAmount = Number((numQty * numCost).toFixed(2));
+    const now = new Date();
+    const userId = req.user?.id || req.user?._id || 1;
+
+    // Calculate expiry date if not provided (Today + shelfLifeDays)
+    const shelfDays = Number(product.shelfLifeDays || 3);
+    const calculatedExpiry = expiryDate && expiryDate.trim()
+      ? new Date(expiryDate)
+      : new Date(now.getTime() + shelfDays * 24 * 60 * 60 * 1000);
+
+    const generatedBatchNo = batchNumber && batchNumber.trim()
+      ? batchNumber.trim()
+      : `BCH-${product.category.toUpperCase().slice(0, 3)}-${Date.now().toString().slice(-5)}`;
+
+    const supplier = supplierName && supplierName.trim()
+      ? supplierName.trim()
+      : 'Mother Dairy Barcode Inward';
+
+    // 1. Create Purchase Inward record
+    const purchase = await Purchase.create({
+      productId: product.id,
+      quantity: numQty,
+      costPrice: numCost,
+      totalAmount,
+      supplierName: supplier,
+      invoiceNumber: invoiceNumber || `BAR-${Date.now().toString().slice(-6)}`,
+      date: now,
+      addedBy: userId,
+      notes: notes || `Quick Barcode Stock Inward [${barcode || product.qrCode}]`
+    });
+
+    // 2. Add Stock
+    const updatedStock = await addStock(product.id, numQty);
+
+    // 3. Create Expiry Batch
+    const expiryBatch = await ExpiryBatch.create({
+      productId: product.id,
+      batchNumber: generatedBatchNo,
+      manufactureDate: now,
+      expiryDate: calculatedExpiry,
+      quantity: numQty,
+      status: calculatedExpiry > now ? 'fresh' : 'expired',
+      addedBy: userId,
+      notes: `Barcode Inward for Purchase #${purchase.id}`
+    });
+
+    // 4. Audit Log
+    await logAudit({
+      req,
+      action: 'CREATE',
+      entityType: 'Stock',
+      entityId: product.id,
+      details: `Barcode Inward: Added ${numQty} ${product.unit} of "${product.name}" (Cost: ₹${numCost}/unit, Exp: ${calculatedExpiry.toISOString().split('T')[0]}, Batch: ${generatedBatchNo}).`
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `Successfully added ${numQty} ${product.unit} of "${product.name}" to stock!`,
+      currentQuantity: Number(updatedStock?.currentQuantity || numQty),
+      product: {
+        ...product.toJSON(),
+        _id: product.id,
+        currentQuantity: Number(updatedStock?.currentQuantity || numQty)
+      },
+      batch: {
+        batchNumber: generatedBatchNo,
+        expiryDate: calculatedExpiry.toISOString().split('T')[0]
+      },
+      purchaseId: purchase.id
+    });
+  } catch (error) {
+    console.error('Quick Stock Inward Error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to add barcode stock' });
   }
 };

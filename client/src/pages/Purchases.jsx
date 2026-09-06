@@ -25,7 +25,8 @@ import {
   RefreshCw, 
   CheckCircle2,
   Package,
-  Layers
+  Layers,
+  ScanBarcode
 } from 'lucide-react';
 import { FALLBACK_PURCHASES, FALLBACK_PRODUCTS } from '../utils/demoFallbackData';
 
@@ -132,10 +133,15 @@ const Purchases = () => {
     });
   };
 
-  // QR Code Auto-fill Handler
+  // Barcode / QR Code Auto-fill Handler
   const handleQrMatched = (scannedCode) => {
+    const upper = (scannedCode || '').trim().toUpperCase();
     const matched = products.find(
-      (p) => p.qrCode.toUpperCase() === scannedCode.toUpperCase() || p._id === scannedCode
+      (p) => 
+        (p.barcode && p.barcode.toUpperCase() === upper) ||
+        (p.qrCode && p.qrCode.toUpperCase() === upper) || 
+        String(p._id) === scannedCode ||
+        String(p.id) === scannedCode
     );
 
     if (matched) {
@@ -143,7 +149,7 @@ const Purchases = () => {
       setIsModalOpen(true);
       addToast(`Auto-filled: ${matched.name} (${matched.category})`, 'success');
     } else {
-      addToast(`No existing dairy product found for QR "${scannedCode}". Please create it in Product Catalog first.`, 'warning');
+      addToast(`No existing dairy product found for Barcode/Code "${scannedCode}".`, 'warning');
     }
   };
 
@@ -224,13 +230,14 @@ const Purchases = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Scan QR Trigger */}
+          {/* Barcode Scanner Trigger */}
           <button
             onClick={() => setIsScannerOpen(true)}
-            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-[#0B4F9C] border border-blue-200 rounded-xl text-xs font-bold shadow-2xs transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold shadow-2xs transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
+            title="Scan Barcode to Auto-fill Product"
           >
-            <Camera className="w-4 h-4 text-cyan-600" />
-            <span>Scan Product QR</span>
+            <ScanBarcode className="w-4 h-4 text-emerald-600" />
+            <span>Barcode Scanner</span>
           </button>
 
           {/* Record Purchase Modal Trigger */}
@@ -505,10 +512,11 @@ const Purchases = () => {
         </form>
       </Modal>
 
-      {/* 5. QR Code Camera Scanner Modal */}
+      {/* 5. Barcode & QR Code Camera Scanner Modal */}
       <QrScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
+        mode="code-only"
         onScanSuccess={handleQrMatched}
       />
     </div>

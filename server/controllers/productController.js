@@ -21,6 +21,7 @@ export const getProducts = async (req, res) => {
         where[Op.or] = [
           { name: { [Op.like]: s } },
           { qrCode: { [Op.like]: s } },
+          { barcode: { [Op.like]: s } },
           { category: { [Op.like]: s } }
         ];
       }
@@ -80,7 +81,7 @@ export const getProducts = async (req, res) => {
 
 
 // @route   GET /api/products/:id
-// @desc    Get single product by ID or QR Code
+// @desc    Get single product by ID, Barcode, or QR Code
 // @access  Private
 export const getProductById = async (req, res) => {
   try {
@@ -95,7 +96,12 @@ export const getProductById = async (req, res) => {
 
     if (!product) {
       product = await Product.findOne({
-        where: { qrCode: idParam },
+        where: {
+          [Op.or]: [
+            { qrCode: idParam },
+            { barcode: idParam }
+          ]
+        },
         include: [{ model: Stock, as: 'stock' }]
       });
     }
@@ -126,7 +132,7 @@ export const getProductById = async (req, res) => {
 // @access  Private/Admin
 export const createProduct = async (req, res) => {
   try {
-    const { name, category, unit, unitPrice, costPrice, qrCode, description, imageUrl, shelfLifeDays, reorderThreshold } = req.body;
+    const { name, category, unit, unitPrice, costPrice, qrCode, barcode, description, imageUrl, shelfLifeDays, reorderThreshold } = req.body;
 
     if (!name || !category || !unit || unitPrice === undefined) {
       return res.status(400).json({ success: false, message: 'Name, category, unit, and unit price are required' });
@@ -150,6 +156,7 @@ export const createProduct = async (req, res) => {
       unitPrice: Number(unitPrice),
       costPrice: costPrice ? Number(costPrice) : Math.round(Number(unitPrice) * 0.8),
       qrCode: generatedQr,
+      barcode: barcode ? barcode.trim() : null,
       description: description || '',
       imageUrl: imageUrl || '',
       shelfLifeDays: shelfLifeDays ? Number(shelfLifeDays) : 3,
@@ -169,7 +176,7 @@ export const createProduct = async (req, res) => {
       action: 'CREATE',
       entityType: 'Product',
       entityId: product.id,
-      details: `Created product "${product.name}" (${product.category}) with QR "${product.qrCode}"`
+      details: `Created product "${product.name}" (${product.category}) with QR "${product.qrCode}" and Barcode "${product.barcode || 'N/A'}"`
     });
 
     const pJson = product.toJSON();
@@ -186,7 +193,7 @@ export const createProduct = async (req, res) => {
 // @access  Private/Admin
 export const updateProduct = async (req, res) => {
   try {
-    const { name, category, unit, unitPrice, costPrice, qrCode, description, imageUrl, shelfLifeDays, reorderThreshold, isActive } = req.body;
+    const { name, category, unit, unitPrice, costPrice, qrCode, barcode, description, imageUrl, shelfLifeDays, reorderThreshold, isActive } = req.body;
     const product = await Product.findByPk(req.params.id);
 
     if (!product) {
@@ -206,6 +213,7 @@ export const updateProduct = async (req, res) => {
       product.qrCode = qrCode.trim().toUpperCase();
     }
 
+    if (barcode !== undefined) product.barcode = barcode ? barcode.trim() : null;
     if (name) product.name = name;
     if (category) product.category = category;
     if (unit) product.unit = unit;
