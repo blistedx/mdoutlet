@@ -45,8 +45,24 @@ export const getDashboardStats = async (req, res) => {
       })
     ]);
 
-    // Active stock items
-    const activeStocks = stocks.filter((s) => s.product && s.product.isActive);
+    // Map stock for each product ensuring every active product is counted
+    const stockMap = new Map();
+    stocks.forEach((s) => {
+      if (s.productId) stockMap.set(Number(s.productId), s);
+    });
+
+    const activeStocks = allProducts.map((p) => {
+      const s = stockMap.get(Number(p.id));
+      const currentQuantity = s ? Number(s.currentQuantity || 0) : Number(p.initialQuantity || 50);
+      const reorderThreshold = s ? Number(s.reorderThreshold || 20) : Number(p.reorderThreshold || 20);
+      return {
+        product: p,
+        productId: p.id,
+        currentQuantity,
+        reorderThreshold
+      };
+    });
+
     const totalStockUnits = activeStocks.reduce((sum, s) => sum + Number(s.currentQuantity || 0), 0);
     const totalInventoryValue = activeStocks.reduce(
       (sum, s) => sum + (Number(s.currentQuantity || 0) * Number(s.product?.unitPrice || 0)),

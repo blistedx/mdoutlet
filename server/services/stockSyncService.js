@@ -29,11 +29,23 @@ export const subtractStock = async (productId, quantity) => {
   const numQty = Number(quantity);
   if (isNaN(numQty) || numQty <= 0) return;
 
-  const stock = await Stock.findOne({ where: { productId } });
-  const current = stock ? Number(stock.currentQuantity || 0) : 0;
+  let stock = await Stock.findOne({ where: { productId } });
+  const product = await Product.findByPk(productId);
 
+  if (!stock) {
+    const initial = product ? Number(product.initialQuantity || 50) : 50;
+    const threshold = product ? Number(product.reorderThreshold || 20) : 20;
+    stock = await Stock.create({
+      productId,
+      currentQuantity: Math.max(0, initial - numQty),
+      reorderThreshold: threshold,
+      lastUpdated: new Date()
+    });
+    return stock;
+  }
+
+  const current = Number(stock.currentQuantity || 0);
   if (current < numQty) {
-    const product = await Product.findByPk(productId);
     throw new Error(
       `Insufficient stock for "${product?.name || 'Product'}". Available: ${current}, Requested: ${numQty}`
     );

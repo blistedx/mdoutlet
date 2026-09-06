@@ -134,14 +134,46 @@ app.get('/api/purchases', (req, res) => {
 });
 
 app.post('/api/purchases', (req, res) => {
+  const prodId = req.body.productId?.id || req.body.productId?._id || req.body.productId;
+  const prod = PRODUCTS.find(p => String(p.id) === String(prodId) || String(p._id) === String(prodId));
+  const qty = Number(req.body.quantity) || 1;
+  const cost = Number(req.body.costPrice) || (prod ? prod.costPrice : 30);
+
+  if (prod) {
+    prod.currentQuantity = Number(prod.currentQuantity || 0) + qty;
+    prod.isLowStock = prod.currentQuantity <= (prod.reorderThreshold || 20);
+  }
+
   const item = {
     ...req.body,
     id: PURCHASES.length + 1,
     _id: PURCHASES.length + 1,
-    totalAmount: (Number(req.body.quantity) || 0) * (Number(req.body.costPrice) || 0)
+    productId: prod ? prod._id : prodId,
+    product: prod ? { ...prod } : { name: 'Item', costPrice: cost },
+    quantity: qty,
+    costPrice: cost,
+    totalAmount: Number((qty * cost).toFixed(2)),
+    date: req.body.date ? new Date(req.body.date).toISOString() : new Date().toISOString()
   };
   PURCHASES.unshift(item);
-  res.status(201).json({ success: true, message: 'Purchase registered successfully!', purchase: item });
+  res.status(201).json({ success: true, message: 'Purchase registered & stock updated successfully!', purchase: item });
+});
+
+app.delete('/api/purchases/:id', (req, res) => {
+  const { id } = req.params;
+  const idx = PURCHASES.findIndex(p => String(p.id) === String(id) || String(p._id) === String(id));
+  if (idx === -1) {
+    return res.status(404).json({ success: false, message: 'Purchase record not found' });
+  }
+  const purchase = PURCHASES[idx];
+  const prodId = purchase.productId?.id || purchase.productId?._id || purchase.productId || purchase.product?.id || purchase.product?._id;
+  const prod = PRODUCTS.find(p => String(p.id) === String(prodId) || String(p._id) === String(prodId));
+  if (prod) {
+    prod.currentQuantity = Math.max(0, Number(prod.currentQuantity || 0) - Number(purchase.quantity || 0));
+    prod.isLowStock = prod.currentQuantity <= (prod.reorderThreshold || 20);
+  }
+  PURCHASES.splice(idx, 1);
+  res.status(200).json({ success: true, message: 'Purchase deleted and stock adjusted successfully!' });
 });
 
 // Sales Routes
@@ -151,32 +183,138 @@ app.get('/api/sales', (req, res) => {
 });
 
 app.post('/api/sales', (req, res) => {
+  const prodId = req.body.productId?.id || req.body.productId?._id || req.body.productId;
+  const prod = PRODUCTS.find(p => String(p.id) === String(prodId) || String(p._id) === String(prodId));
+  const qty = Number(req.body.quantity) || 1;
+  const price = Number(req.body.sellingPrice) || (prod ? prod.unitPrice : 40);
+  const cost = Number(prod ? prod.costPrice : Math.round(price * 0.8));
+
+  if (prod) {
+    prod.currentQuantity = Math.max(0, Number(prod.currentQuantity || 0) - qty);
+    prod.isLowStock = prod.currentQuantity <= (prod.reorderThreshold || 20);
+  }
+
   const item = {
     ...req.body,
     id: SALES.length + 1,
     _id: SALES.length + 1,
-    totalAmount: (Number(req.body.quantity) || 0) * (Number(req.body.sellingPrice) || 0)
+    productId: prod ? prod._id : prodId,
+    product: prod ? { ...prod } : { name: 'Item', unitPrice: price },
+    quantity: qty,
+    sellingPrice: price,
+    costPriceSnapshot: cost,
+    totalAmount: Number((qty * price).toFixed(2)),
+    date: req.body.date ? new Date(req.body.date).toISOString() : new Date().toISOString()
   };
   SALES.unshift(item);
-  res.status(201).json({ success: true, message: 'Sale invoice recorded successfully!', sale: item });
+  res.status(201).json({
+    success: true,
+    message: `Sale of ${qty} ${prod?.unit || 'units'} ${prod?.name || 'Item'} recorded & stock updated!`,
+    sale: item
+  });
 });
+
+app.delete('/api/sales/:id', (req, res) => {
+  const { id } = req.params;
+  const saleIndex = SALES.findIndex(s => String(s.id) === String(id) || String(s._id) === String(id));
+  if (saleIndex === -1) {
+    return res.status(404).json({ success: false, message: 'Sale record not found' });
+  }
+  const sale = SALES[saleIndex];
+  const prodId = sale.productId?.id || sale.productId?._id || sale.productId || sale.product?.id || sale.product?._id;
+  const prod = PRODUCTS.find(p => String(p.id) === String(prodId) || String(p._id) === String(prodId));
+  if (prod) {
+    prod.currentQuantity = Number(prod.currentQuantity || 0) + Number(sale.quantity || 0);
+    prod.isLowStock = prod.currentQuantity <= (prod.reorderThreshold || 20);
+  }
+  SALES.splice(saleIndex, 1);
+  res.status(200).json({ success: true, message: 'Sale deleted and restocked successfully!' });
+});
+
+// Dynamic Dashboard & Reports Calculator
+function computeDynamicDashboardStats() {
+  const totalStockUnits = PRODUCTS.reduce((sum, p) => sum + (Number(p.currentQuantity) || 0), 0);
+  const totalInventoryValue = PRODUCTS.reduce((sum, p) => sum + ((Number(p.currentQuantity) || 0) * (Number(p.unitPrice) || 0)), 0);
+  const totalInventoryCost = PRODUCTS.reduce((sum, p) => sum + ((Number(p.currentQuantity) || 0) * (Number(p.costPrice) || 0)), 0);
+
+  const lowStockItems = PRODUCTS.filter(p => (Number(p.currentQuantity) || 0) <= (Number(p.reorderThreshold) || 20)).map(p => ({
+    id: p.id,
+    _id: p._id,
+    name: p.name,
+    category: p.category,
+    unit: p.unit,
+    currentQuantity: Number(p.currentQuantity || 0),
+    reorderThreshold: Number(p.reorderThreshold || 20),
+    unitPrice: Number(p.unitPrice || 0)
+  }));
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todaySales = SALES.filter(s => (s.date && String(s.date).startsWith(todayStr)));
+  const todayPurchases = PURCHASES.filter(p => (p.date && String(p.date).startsWith(todayStr)));
+
+  const effectiveSales = todaySales.length > 0 ? todaySales : SALES.slice(0, 5);
+  const effectivePurchases = todayPurchases.length > 0 ? todayPurchases : PURCHASES.slice(0, 3);
+
+  const todaySalesTotal = effectiveSales.reduce((sum, s) => sum + Number(s.totalAmount || 0), 0);
+  const todaySalesQty = effectiveSales.reduce((sum, s) => sum + Number(s.quantity || 0), 0);
+  const todayCOGS = effectiveSales.reduce((sum, s) => sum + ((Number(s.costPriceSnapshot) || Number(s.product?.costPrice) || 30) * Number(s.quantity || 0)), 0);
+  const todayGrossProfit = todaySalesTotal - todayCOGS;
+
+  const todayPurchasesTotal = effectivePurchases.reduce((sum, p) => sum + Number(p.totalAmount || 0), 0);
+  const todayPurchasesQty = effectivePurchases.reduce((sum, p) => sum + Number(p.quantity || 0), 0);
+
+  const batches = typeof EXPIRY_BATCHES !== 'undefined' ? EXPIRY_BATCHES : [];
+  const nearBatches = batches.filter(b => b.status === 'near-expiry' || (b.daysLeft && b.daysLeft <= 3));
+  const expiredBatches = batches.filter(b => b.status === 'expired' || (b.daysLeft && b.daysLeft <= 0));
+
+  const totalRevenueAll = SALES.reduce((sum, s) => sum + Number(s.totalAmount || 0), 0);
+  const totalPurchasesCostAll = PURCHASES.reduce((sum, p) => sum + Number(p.totalAmount || 0), 0);
+  const grossProfitAll = totalRevenueAll - totalPurchasesCostAll * 0.85;
+
+  return {
+    totalRevenue: Math.round(totalRevenueAll),
+    totalPurchasesCost: Math.round(totalPurchasesCostAll),
+    grossProfit: Math.round(grossProfitAll),
+    profitMargin: totalRevenueAll > 0 ? Number(((grossProfitAll / totalRevenueAll) * 100).toFixed(1)) : 18.0,
+    totalProducts: PRODUCTS.length,
+    totalProductsCount: PRODUCTS.length,
+    totalStockUnits,
+    totalInventoryValue: Math.round(totalInventoryValue),
+    totalInventoryCost: Math.round(totalInventoryCost),
+    lowStockCount: lowStockItems.length,
+    lowStockItems: lowStockItems.slice(0, 8),
+    nearExpiryCount: nearBatches.length,
+    nearExpiryBatches: nearBatches.slice(0, 6).map(b => ({
+      id: b.id,
+      _id: b._id,
+      batchNumber: b.batchNumber,
+      productName: b.product?.name || b.productName || 'Batch Product',
+      unit: b.product?.unit || 'unit',
+      quantity: Number(b.quantity || 0),
+      expiryDate: b.expiryDate
+    })),
+    expiredCount: expiredBatches.length,
+    todaySales: todaySalesTotal,
+    todayPurchases: todayPurchasesTotal,
+    today: {
+      salesAmount: todaySalesTotal,
+      salesQuantity: todaySalesQty,
+      grossProfit: todayGrossProfit,
+      purchasesAmount: todayPurchasesTotal,
+      purchasesQuantity: todayPurchasesQty
+    },
+    recentActivity: {
+      sales: SALES.slice(0, 5),
+      purchases: PURCHASES.slice(0, 5)
+    }
+  };
+}
 
 // Dashboard & Reports Routes
 app.get('/api/reports/dashboard', (req, res) => {
   res.status(200).json({
     success: true,
-    stats: {
-      totalRevenue: 528698,
-      totalPurchasesCost: 433752,
-      grossProfit: 94946,
-      profitMargin: 18.0,
-      totalStockUnits: 1256,
-      totalProductsCount: PRODUCTS.length,
-      lowStockCount: 3,
-      expiringBatchesCount: 2,
-      todaySales: 24850,
-      todayPurchases: 18600
-    }
+    stats: computeDynamicDashboardStats()
   });
 });
 
@@ -370,18 +508,7 @@ app.delete('/api/expiry/:id', (req, res) => {
 app.get('/api/reports/dashboard-stats', (req, res) => {
   res.status(200).json({
     success: true,
-    stats: {
-      totalRevenue: 528698,
-      totalPurchasesCost: 433752,
-      grossProfit: 94946,
-      profitMargin: 18.0,
-      totalStockUnits: 1256,
-      totalProductsCount: PRODUCTS.length,
-      lowStockCount: 3,
-      expiringBatchesCount: 2,
-      todaySales: 24850,
-      todayPurchases: 18600
-    }
+    stats: computeDynamicDashboardStats()
   });
 });
 

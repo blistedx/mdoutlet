@@ -73,7 +73,9 @@ const Purchases = () => {
       handleQrMatched(qrParam);
       setIsModalOpen(true);
     } else if (prodParam && products.length > 0) {
-      const match = products.find((p) => p._id === prodParam);
+      const match = products.find(
+        (p) => String(p._id) === String(prodParam) || String(p.id) === String(prodParam) || p.qrCode === prodParam
+      );
       if (match) {
         handleSelectProduct(match);
         setIsModalOpen(true);
